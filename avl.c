@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct no {
     int valor;
@@ -13,6 +14,87 @@ typedef struct arvore {
     struct no* root;
 } Arvore;
 
+/*
+Parte estética
+*/
+
+#define MAX_NIVEIS 10
+#define MAX_LARGURA 80
+
+char buffer[MAX_NIVEIS * 2][MAX_LARGURA];
+
+void limpar_buffer() {
+    for (int i = 0; i < MAX_NIVEIS * 2; i++) {
+        for (int j = 0; j < MAX_LARGURA; j++) {
+            buffer[i][j] = ' ';
+        }
+        buffer[i][MAX_LARGURA - 1] = '\0'; // Garantir fim de string
+    }
+}
+
+int desenhaNo(No *no, int linha, int coluna, int largura_total) {
+    if (no == NULL) {
+        return 3; // Largura mínima para um nó 'vazio'
+    }
+
+    // 1. Chamadas Recursivas
+    int largura_esq = desenhaNo(no->esquerda, linha + 2, coluna, largura_total);
+    int largura_dir = desenhaNo(no->direita, linha + 2, coluna + largura_esq - 1, largura_total);
+
+    // 2. Posição do Nó
+    int centro = coluna + largura_esq - 1;
+    char str[10];
+    sprintf(str, "[%d]", no->valor);
+    int len = strlen(str);
+    int inicio_texto = centro - (len / 2);
+    if (inicio_texto < 0) inicio_texto = 0;
+    strncpy(&buffer[linha][inicio_texto], str, len);
+
+    // 3. Desenhar Linhas de Conexão
+    if (no->esquerda != NULL) {
+        int centro_esq = coluna + largura_esq/2;
+        buffer[linha + 1][centro_esq] = '/';
+        for (int i = centro_esq + 1; i < centro; i++) {
+            buffer[linha][i] = '-';
+        }
+    }
+    if (no->direita != NULL) {
+        int centro_dir = coluna + largura_esq + largura_dir/2;
+        buffer[linha + 1][centro_dir] = '\\';
+        for (int i = centro + 1; i < centro_dir; i++) {
+            buffer[linha][i] = '-';
+        }
+    }
+
+    return largura_esq + largura_dir - 1;
+}
+
+int altura(No *no);
+
+void percorrePrint(No *no) {
+    if (no == NULL) {
+        printf("Arv. Vazia.\n");
+        return;
+    }
+
+    int altura_arvore = altura(no); // Usa a função 'altura' da parte lógica
+    limpar_buffer();
+    int largura_total = 1 << (altura_arvore + 1);
+    desenhaNo(no, 0, 0, largura_total);
+
+    printf("\n--- Visualizacao ASCII Art ---\n");
+    for (int i = 0; i < altura_arvore * 2 + 1; i++) {
+        if (i < MAX_NIVEIS * 2) {
+            printf("%s\n", buffer[i]);
+        }
+    }
+    printf("------------------------------\n");
+}
+
+/*
+Parte Lógica e main
+*/
+
 Arvore* criar() {
     Arvore *arv = NULL;
     arv = (Arvore*) malloc(sizeof(Arvore));
@@ -25,19 +107,33 @@ int vazia(Arvore *arv) {
     return (arv->root == NULL);
 }
 
+int altura(No *no){
+    if (no == NULL) {
+        return -1;
+    }
+    int altura_esquerda = altura(no->esquerda);
+    int altura_direita = altura(no->direita);
+    return 1 + (altura_esquerda > altura_direita ? altura_esquerda : altura_direita);
+}
+
+int fb(No *no){
+    if (no == NULL) {
+        return 0;
+    }
+    return altura(no->esquerda) - altura(no->direita);
+}
+
 No* rse(No* no) {
     No* pai = no->pai;
     No* direita = no->direita;
 
     no->direita = direita->esquerda;
     if (no->direita != NULL) {
-        no->direita->pai = no->direita;
+        no->direita->pai = no;
     }
-
     direita->esquerda = no;
     no->pai = direita;
     direita->pai = pai;
-
 
     if (pai != NULL) {
         if (no == pai->direita) {
@@ -46,7 +142,6 @@ No* rse(No* no) {
             pai->esquerda = direita;
         }
     }
-
     return direita;
 }
 
@@ -56,13 +151,11 @@ No* rsd(No* no) {
 
     no->esquerda = esquerda->direita;
     if (no->esquerda != NULL) {
-        no->esquerda->pai = no->esquerda;
+        no->esquerda->pai = no;
     }
-
     esquerda->direita = no;
     no->pai = esquerda;
     esquerda->pai = pai;
-
 
     if (pai != NULL) {
         if (no == pai->esquerda) {
@@ -71,7 +164,6 @@ No* rsd(No* no) {
             pai->direita = esquerda;
         }
     }
-
     return esquerda;
 }
 
@@ -85,68 +177,46 @@ No* rdd(No* no) {
     return rsd(no);
 }
 
-int altura(No *no){
-    int altura_esquerda = 0, altura_direita = 0;
+void balancear(Arvore *arv, No *no) {
+    while (no != NULL) {
+        no->fb = fb(no);
 
-    if(no->esquerda != NULL) {
-        altura_esquerda = altura(no->esquerda) + 1;
+        if (no->fb > 1) {
+            if (fb(no->esquerda) < 0) {
+                no = rdd(no);
+            } else {
+                no = rsd(no);
+            }
+        } else if (no->fb < -1) {
+            if (fb(no->direita) > 0) {
+                no = rde(no);
+            } else {
+                no = rse(no);
+            }
+        }
+
+        if (no->pai == NULL) {
+            arv->root = no;
+        }
+        no = no->pai;
     }
-
-    if(no->direita != NULL) {
-        altura_direita = altura(no->direita) + 1;
-    }
-
-    //ele considera o lado que tem mais nós para retornar a altura (altura máxima)
-    return altura_esquerda > altura_direita? altura_esquerda : altura_direita;
 }
 
-int fb(No *no){
-    int altura_esquerda = 0, altura_direita = 0;
-
-    if(no->esquerda != NULL) {
-        altura_esquerda = altura(no->esquerda) + 1;
-    }
-
-    if(no->direita != NULL) {
-        altura_direita = altura(no->direita) + 1;
-    }
-
-    //se direita > esquerda = negativo (tem mais nós na direita)
-    //se esquerda > direita = positivo (tem mais nós na esquerda)
-    return altura_esquerda - altura_direita;
-}
-
-//retornar nó pai
-No* percorre(No *no, int valor) {
-
-    // if(no->valor = valor) return no;
-
+No* buscaNo(No *no, int valor) {
+    if(no == NULL) return NULL; // Adicionado verificação de NULL
+    if(no->valor == valor) return no;
     if(no->valor > valor){
-        if(no->esquerda == NULL) return no;
-        return percorre(no->esquerda, valor);
+        return buscaNo(no->esquerda, valor);
     }
-
-    if(no->valor < valor){
-        if(no->direita == NULL) return no;
-        return percorre(no->direita, valor);
-    }
-
-    return NULL;
+    return buscaNo(no->direita, valor);
 }
 
-void percorrePrint(No *no) {
-    printf("\nFilho = %d; ", no->valor);
-
-    if (no->pai != NULL) {
-        printf("Pai = %d", no->pai->valor);
+No* noTroca(No *raiz) {
+    No* atual = raiz;
+    while (atual != NULL && atual->esquerda != NULL) { // Adicionado verificação de NULL
+        atual = atual->esquerda;
     }
-
-    if(no->esquerda != NULL){
-        percorrePrint(no->esquerda);
-    }
-    if(no->direita != NULL){
-        percorrePrint(no->direita);
-    }
+    return atual;
 }
 
 No* adicionar(Arvore *arv, int valor) {
@@ -155,11 +225,8 @@ No* adicionar(Arvore *arv, int valor) {
     no->esquerda = NULL;
     no->direita = NULL;
     no->valor = valor;
-    no->fb = 0;
+    no->fb = 0; // Futuramente 'no->altura = 0'
 
-   //calcular quem será o pai desse filho... ratinho? exame de dna
-   //percorrer e achar o local dele
-   //terá que ver o equilibrio e se necessário terá que fazer rotação
     if(arv->root == NULL){
         arv->root = no;
         no->pai = NULL;
@@ -168,8 +235,6 @@ No* adicionar(Arvore *arv, int valor) {
 
     No *atual = arv->root;
     No *pai = NULL;
-
-    //decidindo o pai... teste de DNA
     while (atual != NULL) {
         pai = atual;
         if (valor < atual->valor) {
@@ -178,11 +243,10 @@ No* adicionar(Arvore *arv, int valor) {
             atual = atual->direita;
         } else {
             free(no);
-            return NULL;
+            return NULL; // Valor duplicado
         }
     }
 
-    //Atribui o filho ao pai... recebe pensão
     no->pai = pai;
     if (valor < pai->valor) {
         pai->esquerda = no;
@@ -190,51 +254,70 @@ No* adicionar(Arvore *arv, int valor) {
         pai->direita = no;
     }
 
-    atual = no;
-    while (atual != NULL) {
-        atual->fb = fb(atual); // Recalcula o fator de balanceamento
-
-        if (atual->fb > 1) { // Desequilíbrio à esquerda
-            if (atual->esquerda->fb < 0) {
-                atual = rdd(atual);
-            } else {
-                atual = rsd(atual);
-            }
-        } else if (atual->fb < -1) { // Desequilíbrio à direita
-            if (atual->direita->fb > 0) {
-                atual = rde(atual);
-            } else {
-                atual = rse(atual);
-            }
-        }
-
-        // Se o nó atual se tornou a nova raiz, atualize-a
-        if (atual->pai == NULL) {
-            arv->root = atual;
-        }
-
-        atual = atual->pai;
-    }
-
+    balancear(arv, no); // Começa a balancear do nó adicionado
     return no;
 }
 
-void remover(Arvore *arv,No* no) {
-    if (no->esquerda != NULL)
-        remover(arv, no->esquerda);
+void remover(Arvore *arv, int valor) {
+    printf("Removendo valor: %d \n", valor);
+    No *noRemover = buscaNo(arv->root, valor);
+    if (noRemover == NULL) return;
 
-    if (no->direita != NULL)
-        remover(arv, no->direita);
+    No *pai = noRemover->pai;
+    No *noParaBalancear = NULL; // Nó que iniciará o balanceamento
 
-    if (no->pai == NULL) {
-        arv->root = NULL;
+    //Caso 1: Nó é folha
+    if (noRemover->esquerda == NULL && noRemover->direita == NULL) {
+        noParaBalancear = pai; // Balanceia a partir do pai
+        if (pai == NULL) {
+            arv->root = NULL;
+        } else if (pai->esquerda == noRemover) {
+            pai->esquerda = NULL;
+        } else {
+            pai->direita = NULL;
+        }
+        free(noRemover);
+
+    //Caso 3: Dois filhos
+    } else if (noRemover->esquerda != NULL && noRemover->direita != NULL) {
+        No *sucessor = noTroca(noRemover->direita);
+        noRemover->valor = sucessor->valor; // Copia o valor
+
+        // Agora, remove o *sucessor* (que é Caso 1 ou 2)
+        No *paiDoSucessor = sucessor->pai;
+        No *filhoDoSucessor = sucessor->direita;
+
+        noParaBalancear = paiDoSucessor; // Balanceia a partir do pai do sucessor
+
+        if (paiDoSucessor == noRemover) {
+            paiDoSucessor->direita = filhoDoSucessor;
+        } else {
+            paiDoSucessor->esquerda = filhoDoSucessor;
+        }
+
+        if (filhoDoSucessor != NULL) {
+            filhoDoSucessor->pai = paiDoSucessor;
+        }
+        free(sucessor);
+
+    //Caso 2: Um filho
     } else {
-        if (no->pai->esquerda == no)
-            no->pai->esquerda = NULL;
-        else
-        no->pai->direita = NULL;
+        noParaBalancear = pai; // Balanceia a partir do pai
+        No *filho = (noRemover->esquerda != NULL) ? noRemover->esquerda : noRemover->direita;
+        if (pai == NULL) {
+            arv->root = filho;
+            filho->pai = NULL;
+        } else if (pai->esquerda == noRemover) {
+            pai->esquerda = filho;
+            filho->pai = pai;
+        } else {
+            pai->direita = filho;
+            filho->pai = pai;
+        }
+        free(noRemover);
     }
-    free(no);
+
+    balancear(arv, noParaBalancear);
 }
 
 int main() {
@@ -245,6 +328,11 @@ int main() {
         percorrePrint(arv->root);
         printf("\n");
     };
-
+    remover(arv, 6);
+    percorrePrint(arv->root);
+    remover(arv, 3);
+    percorrePrint(arv->root);
+    adicionar(arv, 6);
+    percorrePrint(arv->root);
     return 0;
 }
