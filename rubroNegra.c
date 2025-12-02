@@ -456,7 +456,16 @@ void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, int *esforco) {
     substitute->cor = PRETO;
 }
 
-void removerRB(ArvoreRB *arvoreRB,NoRB* noRBToRemove, int *esforco) {
+void removerRB(ArvoreRB *arvoreRB,int valor, int *esforco) {
+    NoRB *noRBToRemove = buscarNoRB(arvoreRB, 6);
+
+    if (noRBToRemove != NULL) {
+        printf("\nRemovendo %d...", noRBToRemove->valor);
+    } else {
+        printf("\nErro: Nó com valor 6 não encontrado para remoção.");
+        return;
+    }
+
     NoRB *aux = noRBToRemove;
     NoRB *substitute;
     CorRB origin_cor = noRBToRemove->cor;
@@ -496,32 +505,25 @@ void removerRB(ArvoreRB *arvoreRB,NoRB* noRBToRemove, int *esforco) {
     free(noRBToRemove);
 }
 
-// int main() {
-//     ArvoreRB* arvoreRB = criarArvoreRB();
-//     int esforco = 0;
-//
-//     printf("\n\n****** Adicionando noRBs de 1 a 9 ******");
-//     for(int i = 1; i < 10; i++){
-//         adicionarRB(arvoreRB, i, &esforco);
-//     };
-//
-//     imprimirArvoreRB(arvoreRB);
-//     printf("Esforco Computacional Total (Adicao): %d \n", esforco);
-//
-//     printf("\n\n****** Deletando noRB (Valor 6) ******");
-//     esforco = 0;
-//
-//     NoRB *noRBRemove = buscarNoRB(arvoreRB, 6);
-//
-//     if (noRBRemove != NULL) {
-//         printf("\nRemovendo %d...", noRBRemove->valor);
-//         removerRB(arvoreRB, noRBRemove, &esforco);
-//     } else {
-//         printf("\nErro: Nó com valor 6 não encontrado para remoção.");
-//     }
-//
-//     imprimirArvoreRB(arvoreRB);
-//     printf("Esforco Computacional Total (Remocao): %d \n", esforco);
-//
-//     return 0;
-// }
+int main() {
+    ArvoreRB* arvoreRB = criarArvoreRB();
+    int esforco = 0;
+
+    printf("\n\n****** Adicionando noRBs de 1 a 9 ******");
+    for(int i = 1; i < 10; i++){
+        adicionarRB(arvoreRB, i, &esforco);
+    };
+
+    imprimirArvoreRB(arvoreRB);
+    printf("Esforco Computacional Total (Adicao): %d \n", esforco);
+
+    printf("\n\n****** Deletando noRB (Valor 6) ******");
+    esforco = 0;
+
+    removerRB(arvoreRB, 6, &esforco);
+
+    imprimirArvoreRB(arvoreRB);
+    printf("Esforco Computacional Total (Remocao): %d \n", esforco);
+
+    return 0;
+}

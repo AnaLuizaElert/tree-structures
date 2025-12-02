@@ -1,0 +1,21 @@
+# Ignora arquivos binários, de objeto e diretórios de build
+*.o
+*.a
+*.so
+*.obj
+*.exe
+*.out
+*.bin
+build/
+bin/
+
+# Ignora arquivos gerados por IDEs e editores (opcional)
+.vscode/
+.idea/
+*~
+
+# Se você usou '*' e o Git está ignorando tudo,
+# pode ser necessário adicionar regras de exceção explícitas:
+!*.h
+!*.c
+!main.c

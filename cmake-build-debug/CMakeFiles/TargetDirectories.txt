@@ -1,0 +1,3 @@
+C:/Users/analu/CLionProjects/arvore/cmake-build-debug/CMakeFiles/arvore.dir
+C:/Users/analu/CLionProjects/arvore/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/analu/CLionProjects/arvore/cmake-build-debug/CMakeFiles/rebuild_cache.dir
