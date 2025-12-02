@@ -8,9 +8,6 @@
 enum cores { VERMELHO, PRETO };
 typedef enum cores Cor;
 
-/**
- * @brief Estrutura do Nó da Árvore Rubro-Negra.
- */
 typedef struct no {
     int valor;
     Cor cor;
@@ -19,10 +16,6 @@ typedef struct no {
     struct no* esquerda;
 } No;
 
-/**
- * @brief Estrutura principal da Árvore.
- * Contém a raiz da árvore e o nó sentinela (folha NIL).
- */
 typedef struct arvore {
     struct no* raiz;
     struct no* folha;
