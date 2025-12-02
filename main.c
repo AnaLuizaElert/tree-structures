@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "avl.h"
 #include "rubronegra.h"
+#include "arvore_b.h"
 
 void gerar_dados_aleatorios(int *dados, int tamanho) {
   for (int i = 0; i < tamanho; i++) {
@@ -8,9 +9,13 @@ void gerar_dados_aleatorios(int *dados, int tamanho) {
   }
 }
 
-void teste(FILE *arquivo_csv) {
-  fprintf(arquivo_csv,
-          "Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n");
+void teste(FILE *arquivo_adicao, FILE *arquivo_remocao) {
+  fprintf(
+    arquivo_adicao,"Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n"
+  );
+  fprintf(
+    arquivo_remocao,"Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n"
+  );
 
   for (int tamanho = 100; tamanho <= 10000; tamanho += 100) {
     long soma_add_avl = 0, soma_add_rb = 0, soma_add_b1 = 0, soma_add_b5 = 0, soma_add_b10 = 0;
@@ -29,7 +34,7 @@ void teste(FILE *arquivo_csv) {
       for (int i = 0; i < tamanho; i++) {
         adicionar_avl(avl, dados[i]);
       }
-      contador_avl = 0; 
+      contador_avl = 0;
       for (int i = 0; i < tamanho / 2; i++) {
         remover_avl(avl, dados_remover[i]);
       }
