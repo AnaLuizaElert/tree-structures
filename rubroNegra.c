@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#define MAX_LARGURA 256
+#define MAX_ALTURA 50
 enum cores {VERMELHO, PRETO};
 typedef enum cores Cor;
 
@@ -16,6 +19,118 @@ typedef struct arvore {
     struct no* raiz;
     struct no* folha;
 } Arvore;
+
+char _buffer[MAX_ALTURA][MAX_LARGURA];
+
+int alturaNo(No *no, No *folha) {
+    if (no == folha) {
+        return 0;
+    }
+    int esq = alturaNo(no->esquerda, folha);
+    int dir = alturaNo(no->direita, folha);
+    return 1 + (esq > dir ? esq : dir);
+}
+
+void limpar_buffer(int altura_max) {
+    for (int i = 0; i < altura_max; i++) {
+        for (int j = 0; j < MAX_LARGURA; j++) {
+            _buffer[i][j] = ' ';
+        }
+        _buffer[i][MAX_LARGURA - 1] = '\0'; // Garantir terminação
+    }
+}
+
+char obterCorChar(No *no) {
+    return (no->cor == VERMELHO) ? 'R' : 'P';
+}
+
+/*
+Parte estética
+*/
+
+int desenhaNo(No *no, Arvore *arvore, int linha, int coluna) {
+    if (no == arvore->folha) {
+        return 3;
+    }
+
+    int largura_esq = desenhaNo(no->esquerda, arvore, linha + 2, coluna);
+    int largura_dir = desenhaNo(no->direita, arvore, linha + 2, coluna + largura_esq - 1);
+
+    int centro = coluna + largura_esq - 1;
+    char str[15];
+    // Formato: [VALOR:COR]
+    snprintf(str, sizeof(str), "[%d:%c]", no->valor, obterCorChar(no));
+    int len = strlen(str);
+
+    int inicio_texto = centro - (len / 2);
+    if (inicio_texto < 0) inicio_texto = 0;
+
+    if (linha < MAX_ALTURA && inicio_texto + len < MAX_LARGURA) {
+        strncpy(&_buffer[linha][inicio_texto], str, len);
+    }
+
+    if (no->esquerda != arvore->folha) {
+        int centro_esq_conexao = centro - 1;
+
+        if (linha + 1 < MAX_ALTURA && centro_esq_conexao >= 0) {
+            _buffer[linha + 1][centro_esq_conexao] = '/';
+        }
+
+        for (int i = inicio_texto - 1; i > centro_esq_conexao; i--) {
+             if (linha < MAX_ALTURA && i >= 0) _buffer[linha][i] = '-';
+        }
+    }
+
+    if (no->direita != arvore->folha) {
+        int centro_dir_conexao = centro + 1;
+
+        if (linha + 1 < MAX_ALTURA && centro_dir_conexao < MAX_LARGURA) {
+            _buffer[linha + 1][centro_dir_conexao] = '\\';
+        }
+
+        for (int i = inicio_texto + len; i < centro_dir_conexao; i++) {
+             if (linha < MAX_ALTURA && i < MAX_LARGURA) _buffer[linha][i] = '-';
+        }
+    }
+
+    return largura_esq + largura_dir - 1;
+}
+
+void imprimirArvore(Arvore *arvore) {
+    if (arvore->raiz == arvore->folha) {
+        printf("\nA árvore está vazia.\n");
+        return;
+    }
+
+    int altura_arvore = alturaNo(arvore->raiz, arvore->folha);
+    int linhas_necessarias = altura_arvore * 2 + 1;
+
+    limpar_buffer(linhas_necessarias);
+
+    desenhaNo(arvore->raiz, arvore, 0, 0);
+
+    printf("\n--- Visualizacao ASCII Art (Compacta) ---\n");
+
+    for (int i = 0; i < linhas_necessarias; i++) {
+        int linha_vazia = 1;
+
+        for (int j = 0; j < MAX_LARGURA; j++) {
+            if (_buffer[i][j] != ' ' && _buffer[i][j] != '\0') {
+                linha_vazia = 0;
+                break;
+            }
+        }
+
+        if (!linha_vazia) {
+            printf("%s\n", _buffer[i]);
+        }
+    }
+    printf("-----------------------------------------\n");
+}
+
+/*
+Parte Lógica e main
+*/
 
 Arvore* criarArvore() {
     Arvore *arvore =  (Arvore*) malloc(sizeof(Arvore));
@@ -141,45 +256,6 @@ No *buscarNo(Arvore *arvore, int valor) {
         }
     }
     return NULL;
-}
-
-// Função auxiliar para obter a cor do nó
-char obterCorChar(No *no) {
-    return (no->cor == VERMELHO) ? 'R' : 'P';
-}
-
-void imprimirArvoreVertical(No *no, Arvore *arvore, char *prefixo, int isUltimo) {
-    if (no == arvore->folha) {
-        return;
-    }
-
-    imprimirArvoreVertical(no->direita, arvore, prefixo, 0);
-
-    printf("%s", prefixo);
-    printf(isUltimo ? "└─" : "├─");
-
-    printf("[%d:%c]\n", no->valor, obterCorChar(no));
-
-    char novo_prefixo[256];
-    sprintf(novo_prefixo, "%s%s", prefixo, isUltimo ? "  " : "│ ");
-
-    imprimirArvoreVertical(no->esquerda, arvore, novo_prefixo, 1);
-}
-
-void imprimirArvore(Arvore *arvore) {
-    printf("\n\n*** Representação Visual (Raiz no Topo) ***\n");
-    if (arvore->raiz == arvore->folha) {
-        printf("A árvore está vazia.\n");
-    } else {
-        printf("[RAIZ] [%d:%c]\n", arvore->raiz->valor, obterCorChar(arvore->raiz));
-
-        char prefixo_dir[256] = "|-"; // Prefixo do ramo direito
-        char prefixo_esq[256] = "|-"; // Prefixo do ramo esquerdo
-
-        imprimirArvoreVertical(arvore->raiz->direita, arvore, "|-", 0);
-        imprimirArvoreVertical(arvore->raiz->esquerda, arvore, "|-", 1);
-    }
-    printf("****************************************\n");
 }
 
 void balancear(Arvore *arvore, No* no, int *esforco) {
