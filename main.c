@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "avl.h"
 #include "rubronegra.h"
-#include "arvore_b.h"
+#include "b.h"
 
 void gerar_dados_aleatorios(int *dados, int tamanho) {
   for (int i = 0; i < tamanho; i++) {
