@@ -34,7 +34,7 @@ void teste(FILE *arquivo_adicao, FILE *arquivo_remocao) {
       for (int i = 0; i < tamanho; i++) {
         adicionar_avl(avl, dados[i]);
       }
-      contador_avl = 0;
+      // contador_avl = 0;
       for (int i = 0; i < tamanho / 2; i++) {
         remover_avl(avl, dados_remover[i]);
       }
