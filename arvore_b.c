@@ -284,7 +284,7 @@ void merge(ArvoreB *arvore, No *no, int indice, int *esforco) {
     }
 
     filho->total += irmao->total;
-    
+
     for (int i = indice; i < no->total - 1; ++i) {
         no->chaves[i] = no->chaves[i + 1];
         no->filhos[i + 1] = no->filhos[i + 2];
@@ -359,9 +359,9 @@ void preenche(ArvoreB *arvore, No *no, int indice, int *esforco) {
         rotacaoEsquerda(arvore, no, indice);
     else {
         if (indice != no->total)
-            merge(arvore, no, indice);
+            merge(arvore, no, indice, esforco);
         else
-            merge(arvore, no, indice - 1);
+            merge(arvore, no, indice - 1, esforco);
     }
 }
 
@@ -382,20 +382,20 @@ void removeDeNaoFolha(ArvoreB *arvore, No *no, int indice, int *esforco) {
     (*esforco)++;
     // Caso 2a: Se o filho à esquerda tem chaves suficientes
     if (no->filhos[indice]->total >= arvore->ordem) {
-        int pred = pegaPredecessor(arvore, no, indice);
+        int pred = pegaPredecessor(arvore, no, indice, esforco);
         no->chaves[indice] = pred;
         removeChave(arvore, no->filhos[indice], pred, esforco);
     }
     // Caso 2b: Se o filho à direita tem chaves suficientes
     else if (no->filhos[indice + 1]->total >= arvore->ordem) {
         (*esforco)++;
-        int suc = pegaSucessor(arvore, no, indice);
+        int suc = pegaSucessor(arvore, no, indice, esforco);
         no->chaves[indice] = suc;
         removeChave(arvore, no->filhos[indice + 1], suc, esforco);
     }
     // Caso 2c: Ambos tem poucas chaves -> Merge
     else {
-        merge(arvore, no, indice);
+        merge(arvore, no, indice, esforco);
         removeChave(arvore, no->filhos[indice], k, esforco);
     }
 }
@@ -425,7 +425,7 @@ void removeChave(ArvoreB *arvore, No *no, int chave, int *esforco) {
         //garante que o filho que vai descer tenha chaves suficientes
         (*esforco)++;
         if (no->filhos[indice]->total < arvore->ordem)
-            preenche(arvore, no, indice);
+            preenche(arvore, no, indice, esforco);
 
         (*esforco)++;
         if (flag && indice > no->total)
@@ -462,11 +462,11 @@ int main()
     srand(time(0));
 
     int esforco = 0;
-    int ordem = 1;
+    int ordem = 10;
     ArvoreB *arvore = criaArvore(ordem);
 
-    int n = 20;            //Quantidade de valores
-    const int max = 100;   //intervalo de valores
+    int n = 10000;            //Quantidade de valores
+    const int max = 10000;   //intervalo de valores
 
     int numeros[max];
     for (int i = 0; i < max; i++)
@@ -486,7 +486,7 @@ int main()
     for (int i = 0; i < n; i++)
     {
         adicionaChave(arvore, numeros[i], &esforco);
-        printf("Inserido: %d\n\n", numeros[i]);
+        //printf("Inserido: %d\n\n", numeros[i]);
     }
 
     imprimeEstrutura(arvore->raiz, 0);
@@ -496,11 +496,11 @@ int main()
     for (int i = 0; i < x; i++)
     {
         int chave = numeros[i];
-        printf("\nRemovendo: %d\n", chave);
+        //printf("\nRemovendo: %d\n", chave);
 
         remover(arvore, chave, &esforco);
 
-        imprimeEstrutura(arvore->raiz, 0);
+        //imprimeEstrutura(arvore->raiz, 0);
     }
     /*
     if (n < max) {
