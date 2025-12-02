@@ -14,83 +14,6 @@ typedef struct arvoreAVL {
     struct noAVL* root;
 } ArvoreAVL;
 
-/*
-Parte estética
-*/
-
-#define MAX_NIVEIS_AVL 10
-#define MAX_LARGURA_AVL 80
-
-char buffer[MAX_NIVEIS_AVL * 2][MAX_LARGURA_AVL];
-
-void limparBufferAVL() {
-    for (int i = 0; i < MAX_NIVEIS_AVL * 2; i++) {
-        for (int j = 0; j < MAX_LARGURA_AVL; j++) {
-            buffer[i][j] = ' ';
-        }
-        buffer[i][MAX_LARGURA_AVL - 1] = '\0'; // Garantir fim de string
-    }
-}
-
-int desenhaNoAVL(NoAVL *noAVL, int linha, int coluna, int largura_total) {
-    if (noAVL == NULL) {
-        return 3; // Largura mínima para um nó 'vazio'
-    }
-
-    // 1. Chamadas Recursivas
-    int largura_esq = desenhaNoAVL(noAVL->esquerda, linha + 2, coluna, largura_total);
-    int largura_dir = desenhaNoAVL(noAVL->direita, linha + 2, coluna + largura_esq - 1, largura_total);
-
-    // 2. Posição do Nó
-    int centro = coluna + largura_esq - 1;
-    char str[10];
-    sprintf(str, "[%d]", noAVL->valor);
-    int len = strlen(str);
-    int inicio_texto = centro - (len / 2);
-    if (inicio_texto < 0) inicio_texto = 0;
-    strncpy(&buffer[linha][inicio_texto], str, len);
-
-    // 3. Desenhar Linhas de Conexão
-    if (noAVL->esquerda != NULL) {
-        int centro_esq = coluna + largura_esq/2;
-        buffer[linha + 1][centro_esq] = '/';
-        for (int i = centro_esq + 1; i < centro; i++) {
-            buffer[linha][i] = '-';
-        }
-    }
-    if (noAVL->direita != NULL) {
-        int centro_dir = coluna + largura_esq + largura_dir/2;
-        buffer[linha + 1][centro_dir] = '\\';
-        for (int i = centro + 1; i < centro_dir; i++) {
-            buffer[linha][i] = '-';
-        }
-    }
-
-    return largura_esq + largura_dir - 1;
-}
-
-int alturaAVL(NoAVL *noAVL);
-
-void percorrePrintAVL(NoAVL *noAVL) {
-    if (noAVL == NULL) {
-        printf("Arv. Vazia.\n");
-        return;
-    }
-
-    int alturaAVL_arvoreAVL = alturaAVL(noAVL); // Usa a função 'alturaAVL' da parte lógica
-    limparBufferAVL();
-    int largura_total = 1 << (alturaAVL_arvoreAVL + 1);
-    desenhaNoAVL(noAVL, 0, 0, largura_total);
-
-    printf("\n--- Visualizacao ASCII Art ---\n");
-    for (int i = 0; i < alturaAVL_arvoreAVL * 2 + 1; i++) {
-        if (i < MAX_NIVEIS_AVL * 2) {
-            printf("%s\n", buffer[i]);
-        }
-    }
-    printf("------------------------------\n");
-}
-
 ArvoreAVL* criarAVL() {
     ArvoreAVL *arv = NULL;
     arv = (ArvoreAVL*) malloc(sizeof(ArvoreAVL));
@@ -103,94 +26,108 @@ int vaziaAVL(ArvoreAVL *arv) {
     return (arv->root == NULL);
 }
 
-int alturaAVL(NoAVL *noAVL){
+int alturaAVL(NoAVL *noAVL, int *esforco){
+    (*esforco)++;
     if (noAVL == NULL) {
         return -1;
     }
-    int alturaAVL_esquerda = alturaAVL(noAVL->esquerda);
-    int alturaAVL_direita = alturaAVL(noAVL->direita);
+    int alturaAVL_esquerda = alturaAVL(noAVL->esquerda, esforco);
+    int alturaAVL_direita = alturaAVL(noAVL->direita, esforco);
+    (*esforco)++;
     return 1 + (alturaAVL_esquerda > alturaAVL_direita ? alturaAVL_esquerda : alturaAVL_direita);
 }
 
-int fbAVL(NoAVL *noAVL){
+int fbAVL(NoAVL *noAVL, int *esforco){
+    (*esforco)++;
     if (noAVL == NULL) {
         return 0;
     }
-    return alturaAVL(noAVL->esquerda) - alturaAVL(noAVL->direita);
+    return alturaAVL(noAVL->esquerda, esforco) - alturaAVL(noAVL->direita, esforco);
 }
 
-NoAVL* rseAVL(NoAVL* noAVL) {
+NoAVL* rseAVL(NoAVL* noAVL, int *esforco) {
     NoAVL* pai = noAVL->pai;
     NoAVL* direita = noAVL->direita;
 
     noAVL->direita = direita->esquerda;
+    (*esforco)++;
     if (noAVL->direita != NULL) {
         noAVL->direita->pai = noAVL;
     }
     direita->esquerda = noAVL;
     noAVL->pai = direita;
     direita->pai = pai;
-
+    (*esforco)++;
     if (pai != NULL) {
         if (noAVL == pai->direita) {
+            (*esforco)++;
             pai->direita = direita;
         } else {
+            (*esforco)++;
             pai->esquerda = direita;
         }
     }
     return direita;
 }
 
-NoAVL* rsdAVL(NoAVL* noAVL) {
+NoAVL* rsdAVL(NoAVL* noAVL, int *esforco) {
     NoAVL* pai = noAVL->pai;
     NoAVL* esquerda = noAVL->esquerda;
 
     noAVL->esquerda = esquerda->direita;
+    (*esforco)++;
     if (noAVL->esquerda != NULL) {
         noAVL->esquerda->pai = noAVL;
     }
     esquerda->direita = noAVL;
     noAVL->pai = esquerda;
     esquerda->pai = pai;
-
+    (*esforco)++;
     if (pai != NULL) {
         if (noAVL == pai->esquerda) {
+            (*esforco)++;
             pai->esquerda = esquerda;
         } else {
+            (*esforco)++;
             pai->direita = esquerda;
         }
     }
     return esquerda;
 }
 
-NoAVL* rdeAVL(NoAVL* noAVL) {
-    noAVL->direita = rsdAVL(noAVL->direita);
-    return rseAVL(noAVL);
+NoAVL* rdeAVL(NoAVL* noAVL, int *esforco) {
+    noAVL->direita = rsdAVL(noAVL->direita, esforco);
+    return rseAVL(noAVL, esforco);
 }
 
-NoAVL* rddAVL(NoAVL* noAVL) {
-    noAVL->esquerda = rseAVL(noAVL->esquerda);
-    return rsdAVL(noAVL);
+NoAVL* rddAVL(NoAVL* noAVL, int *esforco) {
+    noAVL->esquerda = rseAVL(noAVL->esquerda, esforco);
+    return rsdAVL(noAVL, esforco);
 }
 
-void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL) {
+void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL, int *esforco) {
     while (noAVL != NULL) {
-        noAVL->fb = fbAVL(noAVL);
-
+        noAVL->fb = fbAVL(noAVL, esforco);
+        (*esforco) += 2;
         if (noAVL->fb > 1) {
-            if (fbAVL(noAVL->esquerda) < 0) {
-                noAVL = rddAVL(noAVL);
+            if (fbAVL(noAVL->esquerda, esforco) < 0) {
+                (*esforco)++;
+                noAVL = rddAVL(noAVL, esforco);
             } else {
-                noAVL = rsdAVL(noAVL);
+                (*esforco)++;
+                noAVL = rsdAVL(noAVL, esforco);
             }
         } else if (noAVL->fb < -1) {
-            if (fbAVL(noAVL->direita) > 0) {
-                noAVL = rdeAVL(noAVL);
+            (*esforco)++;
+            if (fbAVL(noAVL->direita, esforco) > 0) {
+                (*esforco)++;
+                noAVL = rdeAVL(noAVL, esforco);
             } else {
-                noAVL = rseAVL(noAVL);
+                (*esforco)++;
+                noAVL = rseAVL(noAVL, esforco);
             }
         }
-
+        (*esforco)++;
         if (noAVL->pai == NULL) {
             arv->root = noAVL;
         }
@@ -198,31 +135,35 @@ void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL) {
     }
 }
 
-NoAVL* buscaNoAVL(NoAVL *noAVL, int valor) {
+NoAVL* buscaNoAVL(NoAVL *noAVL, int valor, int *esforco) {
+    (*esforco)++;
     if(noAVL == NULL) return NULL; // Adicionado verificação de NULL
+    (*esforco)++;
     if(noAVL->valor == valor) return noAVL;
+    (*esforco)++;
     if(noAVL->valor > valor){
-        return buscaNoAVL(noAVL->esquerda, valor);
+        return buscaNoAVL(noAVL->esquerda, valor, esforco);
     }
-    return buscaNoAVL(noAVL->direita, valor);
+    return buscaNoAVL(noAVL->direita, valor, esforco);
 }
 
-NoAVL* noTrocaAVL(NoAVL *raiz) {
+NoAVL* noTrocaAVL(NoAVL *raiz, int *esforco) {
     NoAVL* atual = raiz;
     while (atual != NULL && atual->esquerda != NULL) { // Adicionado verificação de NULL
+        (*esforco)++;
         atual = atual->esquerda;
     }
     return atual;
 }
 
-NoAVL* adicionarAVL(ArvoreAVL *arv, int valor) {
+NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, int *esforco) {
     printf("\nadicionando %d", valor);
     NoAVL *noAVL = malloc(sizeof(NoAVL));
     noAVL->esquerda = NULL;
     noAVL->direita = NULL;
     noAVL->valor = valor;
     noAVL->fb = 0; // Futuramente 'noAVL->alturaAVL = 0'
-
+    (*esforco)++;
     if(arv->root == NULL){
         arv->root = noAVL;
         noAVL->pai = NULL;
@@ -233,50 +174,61 @@ NoAVL* adicionarAVL(ArvoreAVL *arv, int valor) {
     NoAVL *pai = NULL;
     while (atual != NULL) {
         pai = atual;
+        (*esforco)++;
         if (valor < atual->valor) {
             atual = atual->esquerda;
         } else if (valor > atual->valor) {
+            (*esforco)++;
             atual = atual->direita;
         } else {
+            (*esforco)++;
             free(noAVL);
             return NULL; // Valor duplicado
         }
     }
 
     noAVL->pai = pai;
+    (*esforco)++;
     if (valor < pai->valor) {
         pai->esquerda = noAVL;
     } else {
+        (*esforco)++;
         pai->direita = noAVL;
     }
 
-    balancearAVL(arv, noAVL); // Começa a balancearAVL do nó adicionado
+    balancearAVL(arv, noAVL, esforco); // Começa a balancearAVL do nó adicionado
     return noAVL;
 }
 
-void removerAVL(ArvoreAVL *arv, int valor) {
+void removerAVL(ArvoreAVL *arv, int valor, int *esforco) {
     printf("Removendo valor: %d \n", valor);
-    NoAVL *noAVLRemover = buscaNoAVL(arv->root, valor);
+    NoAVL *noAVLRemover = buscaNoAVL(arv->root, valor, esforco);
+    (*esforco)++;
     if (noAVLRemover == NULL) return;
 
     NoAVL *pai = noAVLRemover->pai;
     NoAVL *noAVLParaBalancear = NULL; // Nó que iniciará o balanceamento
 
+    (*esforco)++;
     //Caso 1: Nó é folha
     if (noAVLRemover->esquerda == NULL && noAVLRemover->direita == NULL) {
         noAVLParaBalancear = pai; // Balanceia a partir do pai
+        (*esforco)++;
         if (pai == NULL) {
             arv->root = NULL;
         } else if (pai->esquerda == noAVLRemover) {
+            (*esforco)++;
             pai->esquerda = NULL;
         } else {
+            (*esforco)++;
             pai->direita = NULL;
         }
         free(noAVLRemover);
 
     //Caso 3: Dois filhos
     } else if (noAVLRemover->esquerda != NULL && noAVLRemover->direita != NULL) {
-        NoAVL *sucessor = noTrocaAVL(noAVLRemover->direita);
+        (*esforco)++;
+        NoAVL *sucessor = noTrocaAVL(noAVLRemover->direita, esforco);
         noAVLRemover->valor = sucessor->valor; // Copia o valor
 
         // Agora, remove o *sucessor* (que é Caso 1 ou 2)
@@ -284,13 +236,13 @@ void removerAVL(ArvoreAVL *arv, int valor) {
         NoAVL *filhoDoSucessor = sucessor->direita;
 
         noAVLParaBalancear = paiDoSucessor; // Balanceia a partir do pai do sucessor
-
+        (*esforco)++;
         if (paiDoSucessor == noAVLRemover) {
             paiDoSucessor->direita = filhoDoSucessor;
         } else {
             paiDoSucessor->esquerda = filhoDoSucessor;
         }
-
+        (*esforco)++;
         if (filhoDoSucessor != NULL) {
             filhoDoSucessor->pai = paiDoSucessor;
         }
@@ -298,37 +250,38 @@ void removerAVL(ArvoreAVL *arv, int valor) {
 
     //Caso 2: Um filho
     } else {
+        (*esforco)++;
         noAVLParaBalancear = pai; // Balanceia a partir do pai
+        (*esforco)++;
         NoAVL *filho = (noAVLRemover->esquerda != NULL) ? noAVLRemover->esquerda : noAVLRemover->direita;
+        (*esforco)++;
         if (pai == NULL) {
             arv->root = filho;
             filho->pai = NULL;
         } else if (pai->esquerda == noAVLRemover) {
+            (*esforco)++;
             pai->esquerda = filho;
             filho->pai = pai;
         } else {
+            (*esforco)++;
             pai->direita = filho;
             filho->pai = pai;
         }
         free(noAVLRemover);
     }
 
-    balancearAVL(arv, noAVLParaBalancear);
+    balancearAVL(arv, noAVLParaBalancear, esforco);
 }
 
-// int main() {
-//     ArvoreAVL* arv = criarAVL();
-//
-//     for(int i = 1; i < 10; i++){
-//         adicionarAVL(arv, i);
-//         percorrePrintAVL(arv->root);
-//         printf("\n");
-//     };
-//     removerAVL(arv, 6);
-//     percorrePrintAVL(arv->root);
-//     removerAVL(arv, 3);
-//     percorrePrintAVL(arv->root);
-//     adicionarAVL(arv, 6);
-//     percorrePrintAVL(arv->root);
-//     return 0;
-// }
+ int main() {
+     ArvoreAVL* arv = criarAVL();
+    int esforco = 0;
+     for(int i = 1; i < 10; i++){
+         adicionarAVL(arv, i, &esforco);
+         printf("\n");
+     };
+     removerAVL(arv, 6, &esforco);
+     removerAVL(arv, 3, &esforco);
+     adicionarAVL(arv, 6, &esforco);
+     return 0;
+ }
