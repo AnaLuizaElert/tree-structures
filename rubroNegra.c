@@ -338,8 +338,6 @@ NoRB *procuraPaiRB(ArvoreRB *arvoreRB, int valor, int *esforco) {
 }
 
 NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, int *esforco) {
-    printf("\nAdicionando %d", valor);
-
     (*esforco)++;
     if(arvoreRB->raiz == arvoreRB->folha){
         NoRB *noRB = criarNoRB(arvoreRB, arvoreRB->folha, valor);
@@ -456,7 +454,14 @@ void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, int *esforco) {
     substitute->cor = PRETO;
 }
 
-void removerRB(ArvoreRB *arvoreRB,NoRB* noRBToRemove, int *esforco) {
+void removerRB(ArvoreRB *arvoreRB, int valor, int *esforco) {
+    NoRB *noRBToRemove = buscarNoRB(arvoreRB, valor);
+
+    if (noRBToRemove == NULL) {
+        printf("\nErro: Nó com valor %d não encontrado para remoção.", valor);
+        return;
+    }
+
     NoRB *aux = noRBToRemove;
     NoRB *substitute;
     CorRB origin_cor = noRBToRemove->cor;
@@ -511,14 +516,7 @@ void removerRB(ArvoreRB *arvoreRB,NoRB* noRBToRemove, int *esforco) {
 //     printf("\n\n****** Deletando noRB (Valor 6) ******");
 //     esforco = 0;
 //
-//     NoRB *noRBRemove = buscarNoRB(arvoreRB, 6);
-//
-//     if (noRBRemove != NULL) {
-//         printf("\nRemovendo %d...", noRBRemove->valor);
-//         removerRB(arvoreRB, noRBRemove, &esforco);
-//     } else {
-//         printf("\nErro: Nó com valor 6 não encontrado para remoção.");
-//     }
+//     removerRB(arvoreRB, 6, &esforco);
 //
 //     imprimirArvoreRB(arvoreRB);
 //     printf("Esforco Computacional Total (Remocao): %d \n", esforco);

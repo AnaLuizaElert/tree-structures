@@ -1,49 +1,48 @@
-#ifndef RUBRO_NEGRA_H
-#define RUBRO_NEGRA_H
+// arvoreRB.h
+
+#ifndef ARVORE_RB_H
+#define ARVORE_RB_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-enum cores { VERMELHO, PRETO };
-typedef enum cores Cor;
+enum coresRB {VERMELHO, PRETO};
+typedef enum coresRB CorRB;
 
-typedef struct no {
+typedef struct noRB {
     int valor;
-    Cor cor;
-    struct no* pai;
-    struct no* direita;
-    struct no* esquerda;
-} No;
+    CorRB cor;
+    struct noRB* pai;
+    struct noRB* direita;
+    struct noRB* esquerda;
+} NoRB;
 
-typedef struct arvore {
-    struct no* raiz;
-    struct no* folha;
-} Arvore;
+typedef struct arvoreRB {
+    struct noRB* raiz;
+    struct noRB* folha;
+} ArvoreRB;
 
-Arvore* criarArvore();
-No* criarNo(Arvore *arvore, No *pai, int valor);
-int vazia(Arvore *arvore);
+ArvoreRB* criarArvoreRB();
+NoRB* criarNoRB(ArvoreRB *arvoreRB, NoRB *pai, int valor);
+int vaziaRB(ArvoreRB *arvoreRB);
 
-No* rse(No* no, Arvore *arvore, int *esforco);
-No* rsd(No* no, Arvore *arvore, int *esforco);
-No* rde(No* no, Arvore *arvore, int *esforco);
-No* rdd(No* no, Arvore *arvore, int *esforco);
+NoRB *procuraPaiRB(ArvoreRB *arvoreRB, int valor, int *esforco);
+NoRB *buscarNoRB(ArvoreRB *arvoreRB, int valor);
+NoRB *minimoRB(ArvoreRB *arvoreRB, NoRB *noRB);
 
-No* percorreAtePai(No *no, int valor, Arvore *arvore);
-No *procuraPai(Arvore *arvore, int valor, int *esforco);
-No *buscarNo(Arvore *arvore, int valor);
-No *minimo(Arvore *arvore, No *no);
-void troca(No *noToRemove, No *noSubstitute, Arvore *arvore, int *esforco);
+NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, int *esforco);
+void balancearRB(ArvoreRB *arvoreRB, NoRB* noRB, int *esforco);
 
-No* adicionar(Arvore *arvore, int valor, int *esforco);
-void balancear(Arvore *arvore, No* no, int *esforco);
+void removerRB(ArvoreRB *arvoreRB, int value, int *esforco);
+void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, int *esforco);
+void trocaRB(NoRB *noRBToRemove, NoRB *noRBSubstitute, ArvoreRB *arvoreRB, int *esforco);
 
-void remover(Arvore *arvore,No* noToRemove, int *esforco);
-void removerCorrecao(Arvore *arvore, No *substitute, int *esforco);
+NoRB* rseRB(NoRB* noRB, ArvoreRB *arvoreRB, int *esforco);
+NoRB* rsdRB(NoRB* noRB, ArvoreRB *arvoreRB, int *esforco);
+NoRB* rdeRB(NoRB* noRB, ArvoreRB *arvoreRB, int *esforco);
+NoRB* rddRB(NoRB* noRB, ArvoreRB *arvoreRB, int *esforco);
 
-void imprimirArvore(Arvore *arvore);
-char obterCorChar(No *no);
-int alturaNo(No *no, No *folha);
+void imprimirArvoreRB(ArvoreRB *arvoreRB);
 
 #endif

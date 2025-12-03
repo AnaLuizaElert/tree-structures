@@ -3,4 +3,9 @@ project(arvore C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(arvore avl.c)
+add_executable(arvore
+        main.c
+        avl.c
+        rubroNegra.c
+        b.c
+)
