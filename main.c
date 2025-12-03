@@ -6,28 +6,21 @@
 #include "rubroNegra.h"
 #include "b.h"
 
-// No main.c
-
 void gerarDadosAleatorios(int *dados, int tamanho) {
-  // Cria um pool de números possíveis (ex: 0 a 100.000)
   int max_val = 100000;
-  int *pool = (int*) malloc(max_val * sizeof(int));
+  int *pool = malloc(max_val * sizeof(int));
 
-  // Preenche o pool com sequencia 0, 1, 2...
   for(int i = 0; i < max_val; i++) {
     pool[i] = i;
   }
 
-  // Algoritmo Fisher-Yates para embaralhar e pegar os 'tamanho' primeiros
   for (int i = 0; i < tamanho; i++) {
     int j = i + rand() % (max_val - i);
 
-    // Troca
     int temp = pool[j];
     pool[j] = pool[i];
     pool[i] = temp;
 
-    // Atribui o número único ao vetor de dados
     dados[i] = pool[i];
   }
 
@@ -42,7 +35,7 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     arquivoRemocao,"Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n"
   );
 
-  for (int tamanho = 1; tamanho <= 1000; tamanho ++) {
+  for (int tamanho = 1; tamanho <= 10000; tamanho +=100) {
     long long somaAddAVL = 0, somaAddRB = 0, somaAddB1 = 0, somaAddB5 = 0, somaAddB10 = 0;
     long long somaRemAVL = 0, somaRemRB = 0, somaRemB1 = 0, somaRemB5 = 0, somaRemB10 = 0;
 
