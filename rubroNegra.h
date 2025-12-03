@@ -34,7 +34,7 @@ NoRB *minimoRB(ArvoreRB *arvoreRB, NoRB *noRB);
 NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, int *esforco);
 void balancearRB(ArvoreRB *arvoreRB, NoRB* noRB, int *esforco);
 
-void removerRB(ArvoreRB *arvoreRB, NoRB* noRBToRemove, int *esforco);
+void removerRB(ArvoreRB *arvoreRB, int value, int *esforco);
 void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, int *esforco);
 void trocaRB(NoRB *noRBToRemove, NoRB *noRBSubstitute, ArvoreRB *arvoreRB, int *esforco);
 

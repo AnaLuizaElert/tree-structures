@@ -3,12 +3,13 @@
 #include <stdlib.h>
 
 #include "avl.h"
-#include "rubronegra.h"
+#include "rubroNegra.h"
 #include "b.h"
 
 void gerarDadosAleatorios(int *dados, int tamanho) {
   for (int i = 0; i < tamanho; i++) {
     dados[i] = rand() % 100000;
+    printf("\nDado %d: ", dados[i]);
   }
 }
 
@@ -20,9 +21,9 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     arquivoRemocao,"Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n"
   );
 
-  for (int tamanho = 100; tamanho <= 10000; tamanho += 100) {
-    long somaAddAVL = 0, somaAddRB = 0, somaAddB1 = 0, somaAddB5 = 0, somaAddB10 = 0;
-    long somaRemAVL = 0, somaRemRB = 0, somaRemB1 = 0, somaRemB5 = 0, somaRemB10 = 0;
+  for (int tamanho = 1; tamanho <= 5; tamanho ++) {
+    int somaAddAVL = 0, somaAddRB = 0, somaAddB1 = 0, somaAddB5 = 0, somaAddB10 = 0;
+    int somaRemAVL = 0, somaRemRB = 0, somaRemB1 = 0, somaRemB5 = 0, somaRemB10 = 0;
 
     for (int teste = 0; teste < 10; teste++) {
       int *dados = malloc(tamanho * sizeof(int));
@@ -33,54 +34,47 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
         dadosRemover[i] = dados[i];
       }
 
-      //AVL
-      ArvoreAVL* avl = criarAVL();
-      for (int i = 0; i < tamanho; i++) {
-        adicionarAVL(avl, dados[i], somaAddAVL);
-      }
-      for (int i = 0; i < tamanho / 2; i++) {
-        removerAVL(avl, dadosRemover[i], somaRemAVL);
-      }
-
       // Rubro Negra
       ArvoreRB* rb = criarArvoreRB();
       for (int i = 0; i < tamanho; i++) {
-        addRB(rb, 20, somaAddRB);
+        adicionarRB(rb, dados[i], &somaAddRB);
+        printf("\nAdicionando %d: ", dados[i]);
       }
       for (int i = 0; i < tamanho / 2; i++) {
-        removerRB(rb, dadosRemover[i], somaRemRB);
+          printf("\nRemovendo %d: ", dados[i]);
+          removerRB(rb, dadosRemover[i], &somaRemRB);
       }
 
       // Árvore B ordem 1
       ArvoreB *b1 = criaArvoreB(1);
       for (int i = 0; i < tamanho; i++) {
-        adicionaChaveB(b1, dados[i], somaAddB1);
+        adicionaChaveB(b1, dados[i], &somaAddB1);
       }
       for (int i = 0; i < tamanho / 2; i++) {
-        removerB(b1, dadosRemover[i], somaRemB1);
+        removerB(b1, dadosRemover[i], &somaRemB1);
       }
 
       // Árvore B ordem 5
       ArvoreB *b5 = criaArvoreB(5);
       for (int i = 0; i < tamanho; i++) {
-        adicionaChaveB(b5, dados[i], somaAddB5);
+        adicionaChaveB(b5, dados[i], &somaAddB5);
       }
       for (int i = 0; i < tamanho / 2; i++) {
-        removerB(b5, dadosRemover[i], somaRemB5);
+        removerB(b5, dadosRemover[i], &somaRemB5);
       }
 
       // Árvore B ordem 10
       ArvoreB *b10 = criaArvoreB(10);
       for (int i = 0; i < tamanho; i++) {
-        adicionaChaveB(b10, dados[i], somaAddB10);
+        adicionaChaveB(b10, dados[i], &somaAddB10);
       }
       for (int i = 0; i < tamanho / 2; i++) {
-        removerB(b10, dadosRemover[i], somaRemB10);
+        removerB(b10, dadosRemover[i], &somaRemB10);
       }
 
       free(dados);
       free(dadosRemover);
-      free(avl);
+      // free(avl);
       free(rb);
       free(b1);
       free(b5);
@@ -94,7 +88,7 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     double mediaAddB10 = (double)somaAddB10 / 10.0;
 
     fprintf(
-      arquivoRemocao,
+      arquivoAdicao,
       "%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",
       tamanho, mediaAddAVL, mediaAddRB, mediaAddB1, mediaAddB5, mediaAddB10
     );
@@ -106,7 +100,7 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     double mediaRemB10 = (double)somaRemB10 / 10.0;
 
     fprintf(
-      arquivoAdicao,
+      arquivoRemocao,
       "%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",
       tamanho, mediaRemAVL, mediaRemRB, mediaRemB1, mediaRemB5, mediaRemB10
     );
@@ -123,9 +117,10 @@ int main() {
         return 1;
     }
 
-    FILE *arquivoRemocao = fopen("resultados_remocao.csv", "w");
+    FILE *arquivoRemocao = fopen("resultadosRemocao.csv", "w");
     if (arquivoRemocao == NULL) {
       printf("Erro ao criar arquivo de resultados para remoção!\n");
+      fclose(arquivoAdicao);
       return 1;
     }
 

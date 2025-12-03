@@ -49,9 +49,30 @@ cmake_ninja_workdir = C$:/Users/analu/CLionProjects/arvore/cmake-build-debug/
 
 build cmake_object_order_depends_target_arvore: phony || .
 
+build CMakeFiles/arvore.dir/main.c.obj: C_COMPILER__arvore_unscanned_Debug C$:/Users/analu/CLionProjects/arvore/main.c || cmake_object_order_depends_target_arvore
+  CONFIG = Debug
+  DEP_FILE = CMakeFiles\arvore.dir\main.c.obj.d
+  FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\arvore.dir
+  OBJECT_FILE_DIR = CMakeFiles\arvore.dir
+
 build CMakeFiles/arvore.dir/avl.c.obj: C_COMPILER__arvore_unscanned_Debug C$:/Users/analu/CLionProjects/arvore/avl.c || cmake_object_order_depends_target_arvore
   CONFIG = Debug
   DEP_FILE = CMakeFiles\arvore.dir\avl.c.obj.d
+  FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\arvore.dir
+  OBJECT_FILE_DIR = CMakeFiles\arvore.dir
+
+build CMakeFiles/arvore.dir/rubroNegra.c.obj: C_COMPILER__arvore_unscanned_Debug C$:/Users/analu/CLionProjects/arvore/rubroNegra.c || cmake_object_order_depends_target_arvore
+  CONFIG = Debug
+  DEP_FILE = CMakeFiles\arvore.dir\rubroNegra.c.obj.d
+  FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\arvore.dir
+  OBJECT_FILE_DIR = CMakeFiles\arvore.dir
+
+build CMakeFiles/arvore.dir/b.c.obj: C_COMPILER__arvore_unscanned_Debug C$:/Users/analu/CLionProjects/arvore/b.c || cmake_object_order_depends_target_arvore
+  CONFIG = Debug
+  DEP_FILE = CMakeFiles\arvore.dir\b.c.obj.d
   FLAGS = -g -std=gnu11 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\arvore.dir
   OBJECT_FILE_DIR = CMakeFiles\arvore.dir
@@ -64,7 +85,7 @@ build CMakeFiles/arvore.dir/avl.c.obj: C_COMPILER__arvore_unscanned_Debug C$:/Us
 #############################################
 # Link the executable arvore.exe
 
-build arvore.exe: C_EXECUTABLE_LINKER__arvore_Debug CMakeFiles/arvore.dir/avl.c.obj
+build arvore.exe: C_EXECUTABLE_LINKER__arvore_Debug CMakeFiles/arvore.dir/main.c.obj CMakeFiles/arvore.dir/avl.c.obj CMakeFiles/arvore.dir/rubroNegra.c.obj CMakeFiles/arvore.dir/b.c.obj
   CONFIG = Debug
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
