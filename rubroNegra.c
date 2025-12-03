@@ -137,7 +137,7 @@ ArvoreRB* criarArvoreRB() {
     NoRB *folha = (NoRB*) malloc(sizeof(NoRB));
     folha->cor = PRETO;
     folha->valor = 0;
-    folha->pai = NULL;
+    folha->pai = folha;
     folha->esquerda = folha;
     folha->direita = folha;
 
