@@ -458,7 +458,7 @@ void removerRB(ArvoreRB *arvoreRB, int valor, int *esforco) {
     NoRB *noRBToRemove = buscarNoRB(arvoreRB, valor);
 
     if (noRBToRemove == NULL) {
-        printf("\nErro: Nó com valor %d não encontrado para remoção.", valor);
+        printf("\nErro: No com valor %d nao encontrado para remocao.", valor);
         return;
     }
 

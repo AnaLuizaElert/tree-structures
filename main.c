@@ -8,20 +8,7 @@
 
 void gerarDadosAleatorios(int *dados, int tamanho) {
   for (int i = 0; i < tamanho; i++) {
-    int novo;
-    int repetido;
-    do {
-      novo = rand() % 100000;
-      repetido = 0;
-      for (int j = 0; j < i; j++) {
-        if (dados[j] == novo) {
-          repetido = 1;
-          break;
-        }
-      }
-    } while (repetido);
-
-    dados[i] = novo;
+    dados[i] = rand() % 100000;
   }
 }
 
@@ -32,9 +19,8 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
   fprintf(
     arquivoRemocao,"Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n"
   );
-  fflush(arquivoAdicao);
 
-  for (int tamanho = 1; tamanho <= 10000; tamanho++) {
+  for (int tamanho = 1; tamanho <= 100000; tamanho ++) {
     int somaAddAVL = 0, somaAddRB = 0, somaAddB1 = 0, somaAddB5 = 0, somaAddB10 = 0;
     int somaRemAVL = 0, somaRemRB = 0, somaRemB1 = 0, somaRemB5 = 0, somaRemB10 = 0;
 
@@ -47,7 +33,7 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
         dadosRemover[i] = dados[i];
       }
 
-      // //AVL
+      //AVL
       ArvoreAVL* avl = criarAVL();
       for (int i = 0; i < tamanho; i++) {
         adicionarAVL(avl, dados[i], &somaAddAVL);
@@ -124,19 +110,20 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
       "%d,%.2f,%.2f,%.2f,%.2f,%.2f\n",
       tamanho, mediaRemAVL, mediaRemRB, mediaRemB1, mediaRemB5, mediaRemB10
     );
+
   }
 }
 
 int main() {
     srand(time(NULL));
 
-    FILE *arquivoAdicao = fopen("resultadosAdicao.csv", "w");
+    FILE *arquivoAdicao = fopen("resultadosAdicaoAVL.csv", "w");
     if (arquivoAdicao == NULL) {
         printf("Erro ao criar arquivo de resultados para adição!\n");
         return 1;
     }
 
-    FILE *arquivoRemocao = fopen("resultadosRemocao.csv", "w");
+    FILE *arquivoRemocao = fopen("resultadosRemocaoAVL.csv", "w");
     if (arquivoRemocao == NULL) {
       printf("Erro ao criar arquivo de resultados para remoção!\n");
       fclose(arquivoAdicao);
@@ -145,8 +132,6 @@ int main() {
 
     teste(arquivoAdicao, arquivoRemocao);
 
-    fflush(arquivoAdicao);
-    fflush(arquivoRemocao);
     fclose(arquivoRemocao);
     fclose(arquivoAdicao);
 
