@@ -25,7 +25,7 @@ int vaziaAVL(ArvoreAVL *arv) {
     return (arv->root == NULL);
 }
 
-int alturaAVL(NoAVL *noAVL, int *esforco){
+int alturaAVL(NoAVL *noAVL, long long *esforco){
     (*esforco)++;
     if (noAVL == NULL) {
         return -1;
@@ -36,7 +36,7 @@ int alturaAVL(NoAVL *noAVL, int *esforco){
     return 1 + (alturaAVL_esquerda > alturaAVL_direita ? alturaAVL_esquerda : alturaAVL_direita);
 }
 
-int fbAVL(NoAVL *noAVL, int *esforco){
+int fbAVL(NoAVL *noAVL, long long *esforco){
     (*esforco)++;
     if (noAVL == NULL) {
         return 0;
@@ -44,7 +44,7 @@ int fbAVL(NoAVL *noAVL, int *esforco){
     return alturaAVL(noAVL->esquerda, esforco) - alturaAVL(noAVL->direita, esforco);
 }
 
-NoAVL* rseAVL(NoAVL* noAVL, int *esforco) {
+NoAVL* rseAVL(NoAVL* noAVL, long long *esforco) {
     NoAVL* pai = noAVL->pai;
     NoAVL* direita = noAVL->direita;
 
@@ -69,7 +69,7 @@ NoAVL* rseAVL(NoAVL* noAVL, int *esforco) {
     return direita;
 }
 
-NoAVL* rsdAVL(NoAVL* noAVL, int *esforco) {
+NoAVL* rsdAVL(NoAVL* noAVL, long long *esforco) {
     NoAVL* pai = noAVL->pai;
     NoAVL* esquerda = noAVL->esquerda;
 
@@ -94,17 +94,17 @@ NoAVL* rsdAVL(NoAVL* noAVL, int *esforco) {
     return esquerda;
 }
 
-NoAVL* rdeAVL(NoAVL* noAVL, int *esforco) {
+NoAVL* rdeAVL(NoAVL* noAVL, long long *esforco) {
     noAVL->direita = rsdAVL(noAVL->direita, esforco);
     return rseAVL(noAVL, esforco);
 }
 
-NoAVL* rddAVL(NoAVL* noAVL, int *esforco) {
+NoAVL* rddAVL(NoAVL* noAVL, long long *esforco) {
     noAVL->esquerda = rseAVL(noAVL->esquerda, esforco);
     return rsdAVL(noAVL, esforco);
 }
 
-void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL, int *esforco) {
+void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL, long long *esforco) {
     while (noAVL != NULL) {
         noAVL->fb = fbAVL(noAVL, esforco);
         (*esforco) += 2;
@@ -134,7 +134,7 @@ void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL, int *esforco) {
     }
 }
 
-NoAVL* buscaNoAVL(NoAVL *noAVL, int valor, int *esforco) {
+NoAVL* buscaNoAVL(NoAVL *noAVL, int valor, long long *esforco) {
     (*esforco)++;
     if(noAVL == NULL) return NULL; // Adicionado verificação de NULL
     (*esforco)++;
@@ -146,7 +146,7 @@ NoAVL* buscaNoAVL(NoAVL *noAVL, int valor, int *esforco) {
     return buscaNoAVL(noAVL->direita, valor, esforco);
 }
 
-NoAVL* noTrocaAVL(NoAVL *raiz, int *esforco) {
+NoAVL* noTrocaAVL(NoAVL *raiz, long long *esforco) {
     NoAVL* atual = raiz;
     while (atual != NULL && atual->esquerda != NULL) { // Adicionado verificação de NULL
         (*esforco)++;
@@ -155,7 +155,7 @@ NoAVL* noTrocaAVL(NoAVL *raiz, int *esforco) {
     return atual;
 }
 
-NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, int *esforco) {
+NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, long long *esforco) {
     NoAVL *noAVL = malloc(sizeof(NoAVL));
     noAVL->esquerda = NULL;
     noAVL->direita = NULL;
@@ -198,7 +198,7 @@ NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, int *esforco) {
     return noAVL;
 }
 
-void removerAVL(ArvoreAVL *arv, int valor, int *esforco) {
+void removerAVL(ArvoreAVL *arv, int valor, long long *esforco) {
     NoAVL *noAVLRemover = buscaNoAVL(arv->root, valor, esforco);
     (*esforco)++;
     if (noAVLRemover == NULL) return;
