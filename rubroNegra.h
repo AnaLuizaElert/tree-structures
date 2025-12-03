@@ -28,8 +28,8 @@ NoRB* criarNoRB(ArvoreRB *arvoreRB, NoRB *pai, int valor);
 int vaziaRB(ArvoreRB *arvoreRB);
 
 NoRB *procuraPaiRB(ArvoreRB *arvoreRB, int valor, long long *esforco);
-NoRB *buscarNoRB(ArvoreRB *arvoreRB, int valor);
-NoRB *minimoRB(ArvoreRB *arvoreRB, NoRB *noRB);
+NoRB *buscarNoRB(ArvoreRB *arvoreRB, int valor, long long *esforco);
+NoRB *minimoRB(ArvoreRB *arvoreRB, NoRB *noRB, long long *esforco);
 
 NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, long long *esforco);
 void balancearRB(ArvoreRB *arvoreRB, NoRB* noRB, long long *esforco);
@@ -43,6 +43,6 @@ NoRB* rsdRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
 NoRB* rdeRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
 NoRB* rddRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
 
-void imprimirArvoreRB(ArvoreRB *arvoreRB);
+void imprimirArvoreRB(ArvoreRB *arvoreRB, long long *esforco);
 
 #endif
