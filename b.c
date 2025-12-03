@@ -89,7 +89,7 @@ void imprimeEstruturaB(NoB *noB, int nivel)
     }
 }
 
-int pesquisaBinariaB(NoB *noB, int chave, int *esforco)
+int pesquisaBinariaB(NoB *noB, int chave, long long *esforco)
 {
     (*esforco)++;
     int inicio = 0, fim = noB->total - 1, meio;
@@ -114,7 +114,7 @@ int pesquisaBinariaB(NoB *noB, int chave, int *esforco)
     return inicio;
 }
 
-int localizaChaveB(ArvoreB *arvore, int chave, int *esforco)
+int localizaChaveB(ArvoreB *arvore, int chave, long long *esforco)
 {
     NoB *noB = arvore->raiz;
     (*esforco)++;
@@ -136,7 +136,7 @@ int localizaChaveB(ArvoreB *arvore, int chave, int *esforco)
     return 0;
 }
 
-NoB *localizaNoB(ArvoreB *arvore, int chave, int *esforco)
+NoB *localizaNoB(ArvoreB *arvore, int chave, long long *esforco)
 {
     NoB *noB = arvore->raiz;
 
@@ -156,7 +156,7 @@ NoB *localizaNoB(ArvoreB *arvore, int chave, int *esforco)
     return NULL;
 }
 
-void adicionaChaveNoB(NoB *noB, NoB *direita, int chave, int *esforco)
+void adicionaChaveNoB(NoB *noB, NoB *direita, int chave, long long *esforco)
 {
     int i = pesquisaBinariaB(noB, chave, esforco);
     (*esforco)++;
@@ -178,7 +178,7 @@ int overflowB(ArvoreB *arvore, NoB *noB)
     return noB->total > arvore->ordem * 2;
 }
 
-NoB *splitB(ArvoreB *arvore, NoB *noB, int *esforco)
+NoB *splitB(ArvoreB *arvore, NoB *noB, long long *esforco)
 {
     int meio = noB->total / 2;
     NoB *noBvo = criaNoB(arvore);
@@ -204,7 +204,7 @@ NoB *splitB(ArvoreB *arvore, NoB *noB, int *esforco)
     return noBvo;
 }
 
-void adicionaChaveRecursivoB(ArvoreB *arvore, NoB *noB, NoB *noBvo, int chave, int *esforco)
+void adicionaChaveRecursivoB(ArvoreB *arvore, NoB *noB, NoB *noBvo, int chave, long long *esforco)
 {
     adicionaChaveNoB(noB, noBvo, chave, esforco);
     (*esforco)++;
@@ -229,7 +229,7 @@ void adicionaChaveRecursivoB(ArvoreB *arvore, NoB *noB, NoB *noBvo, int chave, i
     }
 }
 
-void adicionaChaveB(ArvoreB *arvore, int chave, int *esforco)
+void adicionaChaveB(ArvoreB *arvore, int chave, long long *esforco)
 {
     NoB *noB = localizaNoB(arvore, chave, esforco);
     adicionaChaveRecursivoB(arvore, noB, NULL, chave, esforco);
@@ -240,10 +240,10 @@ void imprimeChaveB(int chave)
     printf("%d ", chave);
 }
 
-void removeChaveB(ArvoreB *arvore, NoB *noB, int chave, int *esforco);
+void removeChaveB(ArvoreB *arvore, NoB *noB, int chave, long long *esforco);
 
 //maior chave da subárvore esquerda
-int pegaPredecessorB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
+int pegaPredecessorB(ArvoreB *arvore, NoB *noB, int indice, long long *esforco) {
     NoB *atual = noB->filhos[indice];
     (*esforco)++;
     while (atual->filhos[atual->total] != NULL) {
@@ -254,7 +254,7 @@ int pegaPredecessorB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
 }
 
 //menoBr chave da subárvore direita
-int pegaSucessorB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
+int pegaSucessorB(ArvoreB *arvore, NoB *noB, int indice, long long *esforco) {
     NoB *atual = noB->filhos[indice + 1];
     (*esforco)++;
     while (atual->filhos[0] != NULL) {
@@ -264,7 +264,7 @@ int pegaSucessorB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
     return atual->chaves[0];
 }
 
-void mergeB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
+void mergeB(ArvoreB *arvore, NoB *noB, int indice, long long *esforco) {
     NoB *filho = noB->filhos[indice];
     NoB *irmao = noB->filhos[indice + 1];
 
@@ -353,7 +353,7 @@ void rotacaoEsquerdaB(ArvoreB *arvore, NoB *noB, int indice) {
 }
 
 // garante a ordem antes de descer
-void preencheB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
+void preencheB(ArvoreB *arvore, NoB *noB, int indice, long long *esforco) {
     if (indice != 0 && noB->filhos[indice - 1]->total >= arvore->ordem)
         rotacaoDireitaB(arvore, noB, indice);
     else if (indice != noB->total && noB->filhos[indice + 1]->total >= arvore->ordem)
@@ -367,7 +367,7 @@ void preencheB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
 }
 
 // Caso 1: Remove de uma folha
-void removeDeFolhaB(NoB *noB, int indice, int *esforco) {
+void removeDeFolhaB(NoB *noB, int indice, long long *esforco) {
     (*esforco)++;
     for (int i = indice + 1; i < noB->total; ++i) {
         noB->chaves[i - 1] = noB->chaves[i];
@@ -377,7 +377,7 @@ void removeDeFolhaB(NoB *noB, int indice, int *esforco) {
 }
 
 // Caso 2: Remove de um nó internoB, 3 variantes
-void removeDeNaoFolhaB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
+void removeDeNaoFolhaB(ArvoreB *arvore, NoB *noB, int indice, long long *esforco) {
     int k = noB->chaves[indice];
 
     (*esforco)++;
@@ -401,7 +401,7 @@ void removeDeNaoFolhaB(ArvoreB *arvore, NoB *noB, int indice, int *esforco) {
     }
 }
 
-void removeChaveB(ArvoreB *arvore, NoB *noB, int chave, int *esforco) {
+void removeChaveB(ArvoreB *arvore, NoB *noB, int chave, long long *esforco) {
     int indice = pesquisaBinariaB(noB, chave, esforco);
 
     int encontrou = (indice < noB->total && noB->chaves[indice] == chave);
@@ -436,7 +436,7 @@ void removeChaveB(ArvoreB *arvore, NoB *noB, int chave, int *esforco) {
     }
 }
 
-void removerB(ArvoreB *arvore, int chave, int *esforco) {
+void removerB(ArvoreB *arvore, int chave, long long *esforco) {
     if (arvore->raiz == NULL) return;
 
     removeChaveB(arvore, arvore->raiz, chave, esforco);

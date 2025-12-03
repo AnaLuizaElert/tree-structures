@@ -6,10 +6,32 @@
 #include "rubroNegra.h"
 #include "b.h"
 
+// No main.c
+
 void gerarDadosAleatorios(int *dados, int tamanho) {
-  for (int i = 0; i < tamanho; i++) {
-    dados[i] = rand() % 100000;
+  // Cria um pool de números possíveis (ex: 0 a 100.000)
+  int max_val = 100000;
+  int *pool = (int*) malloc(max_val * sizeof(int));
+
+  // Preenche o pool com sequencia 0, 1, 2...
+  for(int i = 0; i < max_val; i++) {
+    pool[i] = i;
   }
+
+  // Algoritmo Fisher-Yates para embaralhar e pegar os 'tamanho' primeiros
+  for (int i = 0; i < tamanho; i++) {
+    int j = i + rand() % (max_val - i);
+
+    // Troca
+    int temp = pool[j];
+    pool[j] = pool[i];
+    pool[i] = temp;
+
+    // Atribui o número único ao vetor de dados
+    dados[i] = pool[i];
+  }
+
+  free(pool);
 }
 
 void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
@@ -20,9 +42,9 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     arquivoRemocao,"Tamanho,AVL_Media,RB_Media,B1_Media,B5_Media,B10_Media\n"
   );
 
-  for (int tamanho = 1; tamanho <= 100000; tamanho ++) {
-    int somaAddAVL = 0, somaAddRB = 0, somaAddB1 = 0, somaAddB5 = 0, somaAddB10 = 0;
-    int somaRemAVL = 0, somaRemRB = 0, somaRemB1 = 0, somaRemB5 = 0, somaRemB10 = 0;
+  for (int tamanho = 1; tamanho <= 1000; tamanho ++) {
+    long long somaAddAVL = 0, somaAddRB = 0, somaAddB1 = 0, somaAddB5 = 0, somaAddB10 = 0;
+    long long somaRemAVL = 0, somaRemRB = 0, somaRemB1 = 0, somaRemB5 = 0, somaRemB10 = 0;
 
     for (int teste = 0; teste < 10; teste++) {
       int *dados = malloc(tamanho * sizeof(int));
@@ -33,7 +55,7 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
         dadosRemover[i] = dados[i];
       }
 
-      //AVL
+      // //AVL
       ArvoreAVL* avl = criarAVL();
       for (int i = 0; i < tamanho; i++) {
         adicionarAVL(avl, dados[i], &somaAddAVL);
@@ -52,18 +74,18 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
         removerRB(rb, dadosRemover[i], &somaRemRB);
       }
       free(rb);
-
-      // Árvore B ordem 1
-      ArvoreB *b1 = criaArvoreB(1);
-      for (int i = 0; i < tamanho; i++) {
-        adicionaChaveB(b1, dados[i], &somaAddB1);
-      }
-      for (int i = 0; i < tamanho / 2; i++) {
-        removerB(b1, dadosRemover[i], &somaRemB1);
-      }
-      free(b1);
-
-      // Árvore B ordem 5
+      //
+      // // Árvore B ordem 1
+      // ArvoreB *b1 = criaArvoreB(1);
+      // for (int i = 0; i < tamanho; i++) {
+      //   adicionaChaveB(b1, dados[i], &somaAddB1);
+      // }
+      // for (int i = 0; i < tamanho / 2; i++) {
+      //   removerB(b1, dadosRemover[i], &somaRemB1);
+      // }
+      // free(b1);
+      //
+      // // Árvore B ordem 5
       ArvoreB *b5 = criaArvoreB(5);
       for (int i = 0; i < tamanho; i++) {
         adicionaChaveB(b5, dados[i], &somaAddB5);
@@ -73,7 +95,7 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
       }
       free(b5);
 
-      // Árvore B ordem 10
+      // // Árvore B ordem 10
       ArvoreB *b10 = criaArvoreB(10);
       for (int i = 0; i < tamanho; i++) {
         adicionaChaveB(b10, dados[i], &somaAddB10);
@@ -117,13 +139,13 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
 int main() {
     srand(time(NULL));
 
-    FILE *arquivoAdicao = fopen("resultadosAdicaoAVL.csv", "w");
+    FILE *arquivoAdicao = fopen("resultadosAdicao.csv", "w");
     if (arquivoAdicao == NULL) {
         printf("Erro ao criar arquivo de resultados para adição!\n");
         return 1;
     }
 
-    FILE *arquivoRemocao = fopen("resultadosRemocaoAVL.csv", "w");
+    FILE *arquivoRemocao = fopen("resultadosRemocao.csv", "w");
     if (arquivoRemocao == NULL) {
       printf("Erro ao criar arquivo de resultados para remoção!\n");
       fclose(arquivoAdicao);
