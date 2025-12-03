@@ -18,7 +18,6 @@ ArvoreAVL* criarAVL() {
     ArvoreAVL *arv = NULL;
     arv = (ArvoreAVL*) malloc(sizeof(ArvoreAVL));
     arv->root = NULL;
-    printf("\ncriarAVL");
     return arv;
 }
 
@@ -157,7 +156,6 @@ NoAVL* noTrocaAVL(NoAVL *raiz, int *esforco) {
 }
 
 NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, int *esforco) {
-    printf("\nadicionando %d", valor);
     NoAVL *noAVL = malloc(sizeof(NoAVL));
     noAVL->esquerda = NULL;
     noAVL->direita = NULL;
@@ -201,7 +199,6 @@ NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, int *esforco) {
 }
 
 void removerAVL(ArvoreAVL *arv, int valor, int *esforco) {
-    printf("Removendo valor: %d \n", valor);
     NoAVL *noAVLRemover = buscaNoAVL(arv->root, valor, esforco);
     (*esforco)++;
     if (noAVLRemover == NULL) return;
@@ -273,15 +270,15 @@ void removerAVL(ArvoreAVL *arv, int valor, int *esforco) {
     balancearAVL(arv, noAVLParaBalancear, esforco);
 }
 
- int main() {
-     ArvoreAVL* arv = criarAVL();
-    int esforco = 0;
-     for(int i = 1; i < 10; i++){
-         adicionarAVL(arv, i, &esforco);
-         printf("\n");
-     };
-     removerAVL(arv, 6, &esforco);
-     removerAVL(arv, 3, &esforco);
-     adicionarAVL(arv, 6, &esforco);
-     return 0;
- }
+ // int main() {
+ //     ArvoreAVL* arv = criarAVL();
+ //    int esforco = 0;
+ //     for(int i = 1; i < 10; i++){
+ //         adicionarAVL(arv, i, &esforco);
+ //         printf("\n");
+ //     };
+ //     removerAVL(arv, 6, &esforco);
+ //     removerAVL(arv, 3, &esforco);
+ //     adicionarAVL(arv, 6, &esforco);
+ //     return 0;
+ // }

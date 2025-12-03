@@ -9,7 +9,6 @@
 void gerarDadosAleatorios(int *dados, int tamanho) {
   for (int i = 0; i < tamanho; i++) {
     dados[i] = rand() % 100000;
-    printf("\nDado %d: ", dados[i]);
   }
 }
 
@@ -34,15 +33,22 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
         dadosRemover[i] = dados[i];
       }
 
+      //AVL
+      ArvoreAVL* avl = criarAVL();
+      for (int i = 0; i < tamanho; i++) {
+        adicionarAVL(avl, dados[i], &somaAddAVL);
+      }
+      for (int i = 0; i < tamanho / 2; i++) {
+        removerAVL(avl, dadosRemover[i], &somaRemAVL);
+      }
+
       // Rubro Negra
       ArvoreRB* rb = criarArvoreRB();
       for (int i = 0; i < tamanho; i++) {
         adicionarRB(rb, dados[i], &somaAddRB);
-        printf("\nAdicionando %d: ", dados[i]);
       }
       for (int i = 0; i < tamanho / 2; i++) {
-          printf("\nRemovendo %d: ", dados[i]);
-          removerRB(rb, dadosRemover[i], &somaRemRB);
+        removerRB(rb, dadosRemover[i], &somaRemRB);
       }
 
       // Árvore B ordem 1
@@ -74,11 +80,6 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
 
       free(dados);
       free(dadosRemover);
-      // free(avl);
-      free(rb);
-      free(b1);
-      free(b5);
-      free(b10);
     }
 
     double mediaAddAVL = (double)somaAddAVL / 10.0;
@@ -86,6 +87,11 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     double mediaAddB1 = (double)somaAddB1 / 10.0;
     double mediaAddB5 = (double)somaAddB5 / 10.0;
     double mediaAddB10 = (double)somaAddB10 / 10.0;
+    printf("mediaAddAvl: %f\n", mediaAddAVL);
+    printf("mediaAddRB: %f\n", mediaAddRB);
+    printf("mediaAddB1: %f\n", mediaAddB1);
+    printf("mediaAddB5: %f\n", mediaAddB5);
+    printf("mediaAddB10: %f\n", mediaAddB10);
 
     fprintf(
       arquivoAdicao,
@@ -98,6 +104,11 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
     double mediaRemB1 = (double)somaRemB1 / 10.0;
     double mediaRemB5 = (double)somaRemB5 / 10.0;
     double mediaRemB10 = (double)somaRemB10 / 10.0;
+    printf("mediaRemAVL: %f\n", mediaRemAVL);
+    printf("mediaRemRB: %f\n", mediaRemRB);
+    printf("mediaRemB1: %f\n", mediaRemB1);
+    printf("mediaRemB5: %f\n", mediaRemB5);
+    printf("mediaRemB10: %f\n", mediaRemB10);
 
     fprintf(
       arquivoRemocao,

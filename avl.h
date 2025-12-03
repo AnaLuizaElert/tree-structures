@@ -22,20 +22,18 @@ typedef struct arvoreAVL {
 ArvoreAVL* criarAVL();
 int vaziaAVL(ArvoreAVL *arv);
 
-int alturaAVL(NoAVL *noAVL);
-int fbAVL(NoAVL *noAVL);
-NoAVL* buscaNoAVL(NoAVL *noAVL, int valor);
-NoAVL* noTrocaAVL(NoAVL *raiz);
+int alturaAVL(NoAVL *noAVL, int *esforco);
+int fbAVL(NoAVL *noAVL, int *esforco);
+NoAVL* buscaNoAVL(NoAVL *noAVL, int valor, int *esforco);
+NoAVL* noTrocaAVL(NoAVL *raiz, int *esforco);
 
-NoAVL* adicionarAVL(ArvoreAVL *arv, int valor);
-void removerAVL(ArvoreAVL *arv, int valor);
+NoAVL* adicionarAVL(ArvoreAVL *arv, int valor, int *esforco);
+void removerAVL(ArvoreAVL *arv, int valor, int *esforco);
 
-void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL);
-NoAVL* rseAVL(NoAVL* noAVL);
-NoAVL* rsdAVL(NoAVL* noAVL);
-NoAVL* rdeAVL(NoAVL* noAVL);
-NoAVL* rddAVL(NoAVL* noAVL);
-
-void percorrePrintAVL(NoAVL *noAVL);
+void balancearAVL(ArvoreAVL *arv, NoAVL *noAVL, int *esforco);
+NoAVL* rseAVL(NoAVL* noAVL, int *esforco);
+NoAVL* rsdAVL(NoAVL* noAVL, int *esforco);
+NoAVL* rdeAVL(NoAVL* noAVL, int *esforco);
+NoAVL* rddAVL(NoAVL* noAVL, int *esforco);
 
 #endif
