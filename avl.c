@@ -298,15 +298,3 @@ void removerAVL(ArvoreAVL *arv, int valor, long long *esforco) {
         balancearAVL(arv, noAVLParaBalancear, esforco);
     }
 }
- // int main() {
- //     ArvoreAVL* arv = criarAVL();
- //    int esforco = 0;
- //     for(int i = 1; i < 10; i++){
- //         adicionarAVL(arv, i, &esforco);
- //         printf("\n");
- //     };
- //     removerAVL(arv, 6, &esforco);
- //     removerAVL(arv, 3, &esforco);
- //     adicionarAVL(arv, 6, &esforco);
- //     return 0;
- // }

@@ -1,137 +1,86 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "rubroNegra.h"
 
 #define MAX_LARGURA_RB 256
 #define MAX_ALTURA_RB 50
 
-// As structs já devem estar no .h, mas se estiver compilando tudo junto ou precisar redefinir:
-enum coresRB {VERMELHO, PRETO};
-typedef enum coresRB CorRB;
-
-typedef struct noRB {
-    int valor;
-    CorRB cor;
-    struct noRB* pai;
-    struct noRB* direita;
-    struct noRB* esquerda;
-} NoRB;
-
-typedef struct arvoreRB {
-    struct noRB* raiz;
-    struct noRB* folha;
-} ArvoreRB;
-
-
 char _buffer[MAX_ALTURA_RB][MAX_LARGURA_RB];
 
-int alturaNoRB(NoRB *noRB, NoRB *folha, long long *esforco) {
-    (*esforco)++;
-    if (noRB == folha) {
-        return 0;
-    }
-    int esq = alturaNoRB(noRB->esquerda, folha, esforco);
-    int dir = alturaNoRB(noRB->direita, folha, esforco);
+int alturaNoRB(NoRB *noRB, NoRB *folha) {
+    if (noRB == folha) return 0;
+    int esq = alturaNoRB(noRB->esquerda, folha);
+    int dir = alturaNoRB(noRB->direita, folha);
     return 1 + (esq > dir ? esq : dir);
 }
 
-void limparBufferRB(int altura_max, long long *esforco) {
-
+void limparBufferRB(int altura_max) {
     for (int i = 0; i < altura_max; i++) {
-        for (int j = 0; j < MAX_LARGURA_RB; j++) {
-            _buffer[i][j] = ' ';
-            (*esforco)++;
-        }
+        for (int j = 0; j < MAX_LARGURA_RB; j++) _buffer[i][j] = ' ';
         _buffer[i][MAX_LARGURA_RB - 1] = '\0';
-        (*esforco)++;
     }
 }
 
-char obterCorCharRB(NoRB *noRB, long long *esforco) {
-    (*esforco)++;
+char obterCorCharRB(NoRB *noRB) {
     return (noRB->cor == VERMELHO) ? 'R' : 'P';
 }
 
-int desenhaNoRB(NoRB *noRB, ArvoreRB *arvoreRB, int linha, int coluna, long long *esforco) {
-    if (noRB == arvoreRB->folha) {
-        return 3;
-    }
+int desenhaNoRB(NoRB *noRB, ArvoreRB *arvoreRB, int linha, int coluna) {
+    if (noRB == arvoreRB->folha) return 3;
 
-    int largura_esq = desenhaNoRB(noRB->esquerda, arvoreRB, linha + 2, coluna, esforco);
-    int largura_dir = desenhaNoRB(noRB->direita, arvoreRB, linha + 2, coluna + largura_esq - 1, esforco);
-
+    int largura_esq = desenhaNoRB(noRB->esquerda, arvoreRB, linha + 2, coluna);
+    int largura_dir = desenhaNoRB(noRB->direita, arvoreRB, linha + 2, coluna + largura_esq - 1);
     int centro = coluna + largura_esq - 1;
     char str[15];
-    snprintf(str, sizeof(str), "[%d:%c]", noRB->valor, obterCorCharRB(noRB, esforco));
+    snprintf(str, sizeof(str), "[%d:%c]", noRB->valor, obterCorCharRB(noRB));
     int len = strlen(str);
-
     int inicio_texto = centro - (len / 2);
     if (inicio_texto < 0) inicio_texto = 0;
-
-    if (linha < MAX_ALTURA_RB && inicio_texto + len < MAX_LARGURA_RB) {
+    if (linha < MAX_ALTURA_RB && inicio_texto + len < MAX_LARGURA_RB)
         strncpy(&_buffer[linha][inicio_texto], str, len);
-    }
 
     if (noRB->esquerda != arvoreRB->folha) {
-        int centro_esq_conexao = centro - 1;
-        if (linha + 1 < MAX_ALTURA_RB && centro_esq_conexao >= 0) {
-            _buffer[linha + 1][centro_esq_conexao] = '/';
-        }
-        for (int i = inicio_texto - 1; i > centro_esq_conexao; i--) {
+        int centro_esq = centro - 1;
+        if (linha + 1 < MAX_ALTURA_RB && centro_esq >= 0) _buffer[linha + 1][centro_esq] = '/';
+        for (int i = inicio_texto - 1; i > centro_esq; i--)
              if (linha < MAX_ALTURA_RB && i >= 0) _buffer[linha][i] = '-';
-        }
     }
-
     if (noRB->direita != arvoreRB->folha) {
-        int centro_dir_conexao = centro + 1;
-        if (linha + 1 < MAX_ALTURA_RB && centro_dir_conexao < MAX_LARGURA_RB) {
-            _buffer[linha + 1][centro_dir_conexao] = '\\';
-        }
-        for (int i = inicio_texto + len; i < centro_dir_conexao; i++) {
+        int centro_dir = centro + 1;
+        if (linha + 1 < MAX_ALTURA_RB && centro_dir < MAX_LARGURA_RB) _buffer[linha + 1][centro_dir] = '\\';
+        for (int i = inicio_texto + len; i < centro_dir; i++)
              if (linha < MAX_ALTURA_RB && i < MAX_LARGURA_RB) _buffer[linha][i] = '-';
-        }
     }
-
     return largura_esq + largura_dir - 1;
 }
 
-void imprimirArvoreRB(ArvoreRB *arvoreRB, long long *esforco) {
+void imprimirArvoreRB(ArvoreRB *arvoreRB) {
     if (arvoreRB->raiz == arvoreRB->folha) {
-        printf("\nA árvore está vazia.\n");
+        printf("\nA arvore esta vazia.\n");
         return;
     }
-    int altura_arvoreRB = alturaNoRB(arvoreRB->raiz, arvoreRB->folha, esforco);
-    int linhas_necessarias = altura_arvoreRB * 2 + 1;
-    limparBufferRB(linhas_necessarias, esforco);
-    desenhaNoRB(arvoreRB->raiz, arvoreRB, 0, 0, esforco);
-    printf("\n--- Visualizacao ASCII Art (Compacta) ---\n");
-    for (int i = 0; i < linhas_necessarias; i++) {
-        int linha_vazia = 1;
-        for (int j = 0; j < MAX_LARGURA_RB; j++) {
-            if (_buffer[i][j] != ' ' && _buffer[i][j] != '\0') {
-                linha_vazia = 0;
-                break;
-            }
-        }
-        if (!linha_vazia) {
-            printf("%s\n", _buffer[i]);
-        }
+    int h = alturaNoRB(arvoreRB->raiz, arvoreRB->folha);
+    limparBufferRB(h * 2 + 1);
+    desenhaNoRB(arvoreRB->raiz, arvoreRB, 0, 0);
+    printf("\n--- Visualizacao ASCII ---\n");
+    for (int i = 0; i < h * 2 + 1; i++) {
+        if (_buffer[i][0] == '\0') break;
+        printf("%s\n", _buffer[i]);
     }
-    printf("-----------------------------------------\n");
+    printf("--------------------------\n");
 }
 
-/* --- FUNÇÕES LÓGICAS CORRIGIDAS --- */
+/* Lógica */
 
 ArvoreRB* criarArvoreRB() {
     ArvoreRB *arvoreRB = (ArvoreRB*) malloc(sizeof(ArvoreRB));
     NoRB *folha = (NoRB*) malloc(sizeof(NoRB));
     folha->cor = PRETO;
     folha->valor = 0;
-    // O pai da folha é irrelevante na criação, mas nao deve ser NULL para evitar segfaults se acessado indevidamente
     folha->pai = NULL;
-    folha->esquerda = folha; // Aponta para si mesmo
-    folha->direita = folha;  // Aponta para si mesmo
-
+    folha->esquerda = folha;
+    folha->direita = folha;
     arvoreRB->folha = folha;
     arvoreRB->raiz = folha;
     return arvoreRB;
@@ -151,74 +100,44 @@ int vaziaRB(ArvoreRB *arvoreRB) {
     return (arvoreRB->raiz == arvoreRB->folha);
 }
 
-// Rotação Simples Esquerda (CORRIGIDA)
-NoRB* rseRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco) {
-    NoRB* direita = noRB->direita; (*esforco)++;
-    noRB->direita = direita->esquerda; (*esforco)++;
-
+void rseRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco) {
+    NoRB* direita = noRB->direita;
+    noRB->direita = direita->esquerda;
     (*esforco)++;
     if (direita->esquerda != arvoreRB->folha) {
         direita->esquerda->pai = noRB; (*esforco)++;
     }
-
     direita->pai = noRB->pai; (*esforco)++;
-
     (*esforco)++;
     if (noRB->pai == arvoreRB->folha) {
         arvoreRB->raiz = direita; (*esforco)++;
     } else if (noRB == noRB->pai->esquerda) {
-        (*esforco)++;
-        noRB->pai->esquerda = direita; (*esforco)++;
+        noRB->pai->esquerda = direita; (*esforco)+=2;
     } else {
-        (*esforco)++;
-        noRB->pai->direita = direita; (*esforco)++;
+        noRB->pai->direita = direita; (*esforco)+=2;
     }
-
     direita->esquerda = noRB; (*esforco)++;
     noRB->pai = direita; (*esforco)++;
-
-    return direita;
 }
 
-// Rotação Simples Direita (CORRIGIDA)
-NoRB* rsdRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco) {
-    NoRB* esquerda = noRB->esquerda; (*esforco)++;
-    noRB->esquerda = esquerda->direita; (*esforco)++;
-
+void rsdRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco) {
+    NoRB* esquerda = noRB->esquerda;
+    noRB->esquerda = esquerda->direita;
     (*esforco)++;
     if (esquerda->direita != arvoreRB->folha) {
         esquerda->direita->pai = noRB; (*esforco)++;
     }
-
     esquerda->pai = noRB->pai; (*esforco)++;
-
     (*esforco)++;
     if (noRB->pai == arvoreRB->folha) {
         arvoreRB->raiz = esquerda; (*esforco)++;
     } else if (noRB == noRB->pai->esquerda) {
-        (*esforco)++;
-        noRB->pai->esquerda = esquerda; (*esforco)++;
+        noRB->pai->esquerda = esquerda; (*esforco)+=2;
     } else {
-        (*esforco)++;
-        noRB->pai->direita = esquerda; (*esforco)++;
+        noRB->pai->direita = esquerda; (*esforco)+=2;
     }
-
     esquerda->direita = noRB; (*esforco)++;
     noRB->pai = esquerda; (*esforco)++;
-
-    return esquerda;
-}
-
-NoRB* rdeRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco) {
-    (*esforco)++;
-    noRB->direita = rsdRB(noRB->direita, arvoreRB, esforco);
-    return rseRB(noRB, arvoreRB, esforco);
-}
-
-NoRB* rddRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco) {
-    (*esforco)++;
-    noRB->esquerda = rseRB(noRB->esquerda, arvoreRB, esforco);
-    return rsdRB(noRB, arvoreRB, esforco);
 }
 
 NoRB *buscarNoRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
@@ -228,10 +147,8 @@ NoRB *buscarNoRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
         if (valor < current->valor) {
             current = current->esquerda; (*esforco)++;
         } else if (valor > current->valor) {
-            (*esforco)++;
-            current = current->direita; (*esforco)++;
+            current = current->direita; (*esforco)+=2;
         } else {
-            (*esforco)++;
             return current;
         }
         (*esforco)++;
@@ -244,76 +161,51 @@ void balancearRB(ArvoreRB *arvoreRB, NoRB* noRB, long long *esforco) {
         (*esforco)++;
         if (noRB->pai == arvoreRB->raiz) break;
 
-        NoRB *grandpa = noRB->pai->pai; (*esforco)++;
-
-        // Verifica se avô é válido antes de acessar (segurança extra)
-        (*esforco)++;
-        if (grandpa == arvoreRB->folha) break;
+        NoRB *pai = noRB->pai; (*esforco)++;
+        NoRB *avo = pai->pai; (*esforco)++;
 
         (*esforco)++;
-        if (noRB->pai == grandpa->esquerda) {
-            NoRB* uncle = grandpa->direita; (*esforco)++;
-
+        if (pai == avo->esquerda) {
+            NoRB* tio = avo->direita; (*esforco)++;
             (*esforco)++;
-            if (uncle->cor == VERMELHO) {
-                uncle->cor = PRETO; (*esforco)++;
-                noRB->pai->cor = PRETO; (*esforco)++;
-                grandpa->cor = VERMELHO; (*esforco)++;
-                noRB = grandpa; (*esforco)++;
+            if (tio->cor == VERMELHO) {
+                tio->cor = PRETO; (*esforco)++;
+                pai->cor = PRETO; (*esforco)++;
+                avo->cor = VERMELHO; (*esforco)++;
+                noRB = avo; (*esforco)++;
             } else {
                 (*esforco)++;
-                if (noRB == noRB->pai->direita) {
-                    noRB = noRB->pai; (*esforco)++;
+                if (noRB == pai->direita) {
+                    noRB = pai; (*esforco)++;
                     rseRB(noRB, arvoreRB, esforco);
+                    pai = noRB->pai;
                 }
-                noRB->pai->cor = PRETO; (*esforco)++;
-                grandpa->cor = VERMELHO; (*esforco)++;
-                rsdRB(grandpa, arvoreRB, esforco);
+                pai->cor = PRETO; (*esforco)++;
+                avo->cor = VERMELHO; (*esforco)++;
+                rsdRB(avo, arvoreRB, esforco);
             }
         } else {
-            NoRB* uncle = grandpa->esquerda; (*esforco)++;
-
+            NoRB* tio = avo->esquerda; (*esforco)++;
             (*esforco)++;
-            if (uncle->cor == VERMELHO) {
-                uncle->cor = PRETO; (*esforco)++;
-                noRB->pai->cor = PRETO; (*esforco)++;
-                grandpa->cor = VERMELHO; (*esforco)++;
-                noRB = grandpa; (*esforco)++;
+            if (tio->cor == VERMELHO) {
+                tio->cor = PRETO; (*esforco)++;
+                pai->cor = PRETO; (*esforco)++;
+                avo->cor = VERMELHO; (*esforco)++;
+                noRB = avo; (*esforco)++;
             } else {
                 (*esforco)++;
-                if (noRB == noRB->pai->esquerda) {
-                    noRB = noRB->pai; (*esforco)++;
+                if (noRB == pai->esquerda) {
+                    noRB = pai; (*esforco)++;
                     rsdRB(noRB, arvoreRB, esforco);
+                    pai = noRB->pai;
                 }
-                noRB->pai->cor = PRETO; (*esforco)++;
-                grandpa->cor = VERMELHO; (*esforco)++;
-                rseRB(grandpa, arvoreRB, esforco);
+                pai->cor = PRETO; (*esforco)++;
+                avo->cor = VERMELHO; (*esforco)++;
+                rseRB(avo, arvoreRB, esforco);
             }
         }
-        (*esforco)++;
     }
     arvoreRB->raiz->cor = PRETO; (*esforco)++;
-}
-
-NoRB *procuraPaiRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
-    NoRB *current = arvoreRB->raiz; (*esforco)++;
-    NoRB *pai = arvoreRB->folha; (*esforco)++;
-
-    while (current != arvoreRB->folha) {
-        pai = current; (*esforco)++;
-        (*esforco)++;
-        if (valor < current->valor) {
-            current = current->esquerda; (*esforco)++;
-        } else if (valor > current->valor) {
-            (*esforco)++;
-            current = current->direita; (*esforco)++;
-        } else {
-            (*esforco)++;
-            return NULL; // Valor já existe
-        }
-        (*esforco)++;
-    }
-    return pai;
 }
 
 NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
@@ -325,13 +217,23 @@ NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
         return noRB;
     }
 
-    NoRB *pai = procuraPaiRB(arvoreRB, valor, esforco); (*esforco)++;
+    NoRB *atual = arvoreRB->raiz; (*esforco)++;
+    NoRB *pai = arvoreRB->folha; (*esforco)++;
 
-    (*esforco)++;
-    if (pai == NULL) return NULL; // Elemento já existe
+    while (atual != arvoreRB->folha) {
+        pai = atual; (*esforco)++;
+        (*esforco)++;
+        if (valor < atual->valor) {
+            atual = atual->esquerda; (*esforco)++;
+        } else if (valor > atual->valor) {
+            atual = atual->direita; (*esforco)+=2;
+        } else {
+            return NULL;
+        }
+        (*esforco)++;
+    }
 
     NoRB *noRB = criarNoRB(arvoreRB, pai, valor); (*esforco)++;
-
     (*esforco)++;
     if (valor < pai->valor) {
         pai->esquerda = noRB; (*esforco)++;
@@ -343,18 +245,16 @@ NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
     return noRB;
 }
 
-void trocaRB(NoRB *noRBToRemove, NoRB *noRBSubstitute, ArvoreRB *arvoreRB, long long *esforco) {
+void trocaRB(NoRB *u, NoRB *v, ArvoreRB *arvoreRB, long long *esforco) {
     (*esforco)++;
-    if (noRBToRemove->pai == arvoreRB->folha) {
-        arvoreRB->raiz = noRBSubstitute; (*esforco)++;
-    } else if (noRBToRemove == noRBToRemove->pai->esquerda) {
-        (*esforco)++;
-        noRBToRemove->pai->esquerda = noRBSubstitute; (*esforco)++;
+    if (u->pai == arvoreRB->folha) {
+        arvoreRB->raiz = v; (*esforco)++;
+    } else if (u == u->pai->esquerda) {
+        u->pai->esquerda = v; (*esforco)+=2;
     } else {
-        (*esforco)++;
-        noRBToRemove->pai->direita = noRBSubstitute; (*esforco)++;
+        u->pai->direita = v; (*esforco)+=2;
     }
-    noRBSubstitute->pai = noRBToRemove->pai; (*esforco)++;
+    v->pai = u->pai; (*esforco)++;
 }
 
 NoRB *minimoRB(ArvoreRB *arvoreRB, NoRB *noRB, long long *esforco) {
@@ -365,122 +265,124 @@ NoRB *minimoRB(ArvoreRB *arvoreRB, NoRB *noRB, long long *esforco) {
     return noRB;
 }
 
-void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, long long *esforco) {
-    (*esforco)++;
+void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, NoRB *paiReal, long long *esforco) {
     while (substitute != arvoreRB->raiz && substitute->cor == PRETO) {
         (*esforco)++;
-        if (substitute == substitute->pai->esquerda) { // Correção de sintaxe para segurança
-            NoRB *brother = substitute->pai->direita; (*esforco)++;
+        if (substitute == paiReal->esquerda) {
+            NoRB *brother = paiReal->direita; (*esforco)++;
             (*esforco)++;
             if (brother->cor == VERMELHO) {
                 brother->cor = PRETO; (*esforco)++;
-                substitute->pai->cor = VERMELHO; (*esforco)++;
-                rseRB(substitute->pai, arvoreRB, esforco);
-                brother = substitute->pai->direita; (*esforco)++;
+                paiReal->cor = VERMELHO; (*esforco)++;
+                rseRB(paiReal, arvoreRB, esforco);
+                brother = paiReal->direita; (*esforco)++;
             }
 
             (*esforco)++;
             if (brother->esquerda->cor == PRETO && brother->direita->cor == PRETO) {
-                brother->cor = VERMELHO; (*esforco)++;
-                substitute = substitute->pai; (*esforco)++;
+                if(brother != arvoreRB->folha) brother->cor = VERMELHO; (*esforco)++;
+                substitute = paiReal; (*esforco)++;
+                paiReal = substitute->pai; (*esforco)++;
             } else {
                 (*esforco)++;
                 if (brother->direita->cor == PRETO) {
-                    brother->esquerda->cor = PRETO; (*esforco)++;
-                    brother->cor = VERMELHO; (*esforco)++;
+                    if(brother->esquerda != arvoreRB->folha) brother->esquerda->cor = PRETO; (*esforco)++;
+                    if(brother != arvoreRB->folha) brother->cor = VERMELHO; (*esforco)++;
                     rsdRB(brother, arvoreRB, esforco);
-                    brother = substitute->pai->direita; (*esforco)++;
+                    brother = paiReal->direita; (*esforco)++;
                 }
-
-                brother->cor = substitute->pai->cor; (*esforco)++;
-                substitute->pai->cor = PRETO; (*esforco)++;
-                brother->direita->cor = PRETO; (*esforco)++;
-                rseRB(substitute->pai, arvoreRB, esforco);
+                if(brother != arvoreRB->folha) brother->cor = paiReal->cor; (*esforco)++;
+                paiReal->cor = PRETO; (*esforco)++;
+                if(brother->direita != arvoreRB->folha) brother->direita->cor = PRETO; (*esforco)++;
+                rseRB(paiReal, arvoreRB, esforco);
                 substitute = arvoreRB->raiz; (*esforco)++;
+                paiReal = substitute->pai;
             }
         } else {
-            NoRB *brother = substitute->pai->esquerda; (*esforco)++;
-
+            NoRB *brother = paiReal->esquerda; (*esforco)++;
             (*esforco)++;
             if (brother->cor == VERMELHO) {
                 brother->cor = PRETO; (*esforco)++;
-                substitute->pai->cor = VERMELHO; (*esforco)++;
-                rsdRB(substitute->pai, arvoreRB, esforco); (*esforco)++;
-                brother = substitute->pai->esquerda; (*esforco)++;
+                paiReal->cor = VERMELHO; (*esforco)++;
+                rsdRB(paiReal, arvoreRB, esforco);
+                brother = paiReal->esquerda; (*esforco)++;
             }
 
             (*esforco)++;
             if (brother->direita->cor == PRETO && brother->esquerda->cor == PRETO) {
-                brother->cor = VERMELHO; (*esforco)++;
-                substitute = substitute->pai; (*esforco)++;
+                if(brother != arvoreRB->folha) brother->cor = VERMELHO; (*esforco)++;
+                substitute = paiReal; (*esforco)++;
+                paiReal = substitute->pai; (*esforco)++;
             } else {
                 (*esforco)++;
                 if (brother->esquerda->cor == PRETO) {
-                    brother->direita->cor = PRETO; (*esforco)++;
-                    brother->cor = VERMELHO; (*esforco)++;
+                    if(brother->direita != arvoreRB->folha) brother->direita->cor = PRETO; (*esforco)++;
+                    if(brother != arvoreRB->folha) brother->cor = VERMELHO; (*esforco)++;
                     rseRB(brother, arvoreRB, esforco);
-                    brother = substitute->pai->esquerda; (*esforco)++;
+                    brother = paiReal->esquerda; (*esforco)++;
                 }
-
-                brother->cor = substitute->pai->cor; (*esforco)++;
-                substitute->pai->cor = PRETO; (*esforco)++;
-                brother->esquerda->cor = PRETO; (*esforco)++;
-                rsdRB(substitute->pai, arvoreRB, esforco);
+                if(brother != arvoreRB->folha) brother->cor = paiReal->cor; (*esforco)++;
+                paiReal->cor = PRETO; (*esforco)++;
+                if(brother->esquerda != arvoreRB->folha) brother->esquerda->cor = PRETO; (*esforco)++;
+                rsdRB(paiReal, arvoreRB, esforco);
                 substitute = arvoreRB->raiz; (*esforco)++;
+                paiReal = substitute->pai;
             }
         }
         (*esforco)++;
     }
-    substitute->cor = PRETO; (*esforco)++;
+    if(substitute != arvoreRB->folha) substitute->cor = PRETO; (*esforco)++;
+
+    arvoreRB->folha->cor = PRETO;
 }
 
 void removerRB(ArvoreRB *arvoreRB, int valor, long long *esforco) {
-    NoRB *noRBToRemove = buscarNoRB(arvoreRB, valor, esforco); (*esforco)++;
+    NoRB *z = buscarNoRB(arvoreRB, valor, esforco); (*esforco)++;
+    if (z == NULL) return;
 
-    (*esforco)++;
-    if (noRBToRemove == NULL) {
-        // Se a geração de dados for única, isso não deve ocorrer
-        printf("\nErro: No com valor %d não encontrado para remocao.", valor);
-        return;
-    }
-
-    NoRB *y = noRBToRemove; (*esforco)++;
+    NoRB *y = z; (*esforco)++;
     NoRB *x; (*esforco)++;
-    CorRB y_original_color = y->cor;
+    NoRB *paiDeX;
+    CorRB y_original_color = y->cor; (*esforco)++;
 
     (*esforco)++;
-    if (noRBToRemove->esquerda == arvoreRB->folha) {
-        x = noRBToRemove->direita; (*esforco)++;
-        trocaRB(noRBToRemove, noRBToRemove->direita, arvoreRB, esforco);
-    } else if (noRBToRemove->direita == arvoreRB->folha) {
+    if (z->esquerda == arvoreRB->folha) {
+        x = z->direita; (*esforco)++;
+        paiDeX = z->pai; (*esforco)++;
+        trocaRB(z, z->direita, arvoreRB, esforco);
+    } else if (z->direita == arvoreRB->folha) {
         (*esforco)++;
-        x = noRBToRemove->esquerda; (*esforco)++;
-        trocaRB(noRBToRemove, noRBToRemove->esquerda, arvoreRB, esforco);
+        x = z->esquerda; (*esforco)++;
+        paiDeX = z->pai; (*esforco)++;
+        trocaRB(z, z->esquerda, arvoreRB, esforco);
     } else {
         (*esforco)++;
-        y = minimoRB(arvoreRB, noRBToRemove->direita, esforco); (*esforco)++;
+        y = minimoRB(arvoreRB, z->direita, esforco); (*esforco)++;
         y_original_color = y->cor; (*esforco)++;
         x = y->direita; (*esforco)++;
 
         (*esforco)++;
-        if (y->pai == noRBToRemove) {
-            x->pai = y; (*esforco)++;
+        if (y->pai == z) {
+            paiDeX = y; (*esforco)++;
         } else {
+            paiDeX = y->pai; (*esforco)++;
             trocaRB(y, y->direita, arvoreRB, esforco);
-            y->direita = noRBToRemove->direita; (*esforco)++;
+            y->direita = z->direita; (*esforco)++;
             y->direita->pai = y; (*esforco)++;
         }
 
-        trocaRB(noRBToRemove, y, arvoreRB, esforco);
-        y->esquerda = noRBToRemove->esquerda; (*esforco)++;
+        trocaRB(z, y, arvoreRB, esforco);
+        y->esquerda = z->esquerda; (*esforco)++;
         y->esquerda->pai = y; (*esforco)++;
-        y->cor = noRBToRemove->cor; (*esforco)++;
+        y->cor = z->cor; (*esforco)++;
     }
 
     (*esforco)++;
     if (y_original_color == PRETO) {
-        removerCorrecaoRB(arvoreRB, x, esforco);
+        removerCorrecaoRB(arvoreRB, x, paiDeX, esforco);
     }
 
-    free(noRBToRemove);
+    arvoreRB->folha->cor = PRETO;
+    arvoreRB->folha->pai = NULL;
+    free(z);
 }
