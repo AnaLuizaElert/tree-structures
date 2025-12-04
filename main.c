@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+
 #include "avl.h"
 #include "rubroNegra.h"
 #include "b.h"
@@ -114,8 +115,8 @@ void teste(FILE *arquivoAdicao, FILE *arquivoRemocao) {
 
 int main() {
     srand(time(NULL));
-    FILE *arquivoAdicao = fopen("resultadosAdicao.csv", "w");
-    FILE *arquivoRemocao = fopen("resultadosRemocao.csv", "w");
+    FILE *arquivoAdicao = fopen("resultadosAdicao5.csv", "w");
+    FILE *arquivoRemocao = fopen("resultadosRemocao5.csv", "w");
     if (!arquivoAdicao || !arquivoRemocao) {
         printf("Erro ao criar arquivos!\n");
         return 1;

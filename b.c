@@ -91,7 +91,7 @@ NoB *splitB(ArvoreB *arvore, NoB *noB, long long *esforco) {
     NoB *noBvo = criaNoB(arvore);
     noBvo->pai = noB->pai; (*esforco)++;
 
-    // Loop de copia sem custo
+    // Loop de copia sem esforco
     for (int i = meio + 1; i < noB->total; i++) {
         noBvo->filhos[noBvo->total] = noB->filhos[i];
         noBvo->chaves[noBvo->total] = noB->chaves[i];
