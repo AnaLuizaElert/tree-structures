@@ -35,14 +35,14 @@ NoRB* adicionarRB(ArvoreRB *arvoreRB, int valor, long long *esforco);
 void balancearRB(ArvoreRB *arvoreRB, NoRB* noRB, long long *esforco);
 
 void removerRB(ArvoreRB *arvoreRB, int value, long long *esforco);
-void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, long long *esforco);
+void removerCorrecaoRB(ArvoreRB *arvoreRB, NoRB *substitute, NoRB *paiReal, long long *esforco);
 void trocaRB(NoRB *noRBToRemove, NoRB *noRBSubstitute, ArvoreRB *arvoreRB, long long *esforco);
 
-NoRB* rseRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
-NoRB* rsdRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
+void rseRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
+void rsdRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
 NoRB* rdeRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
 NoRB* rddRB(NoRB* noRB, ArvoreRB *arvoreRB, long long *esforco);
 
-void imprimirArvoreRB(ArvoreRB *arvoreRB, long long *esforco);
+void imprimirArvoreRB(ArvoreRB *arvoreRB);
 
 #endif
